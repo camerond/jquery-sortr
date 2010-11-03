@@ -81,6 +81,7 @@ $(function() {
     addColumn('checkboxes', checkboxes);
     addColumn('blanks', blanks);
     $t.sortr();
+    equals($t.find('thead th#blanks').data('sortr-method'), 'blanks', 'detects column as blanks');
     $t.find('thead th#yesno').click();
     same(getColumnContents('yesno'), sorted_yesno, 'sorts "yes" and "no" properly');
     equals($t.find('thead th#yesno').attr('class'), 'sortr-desc', 'applies sortr-desc class');
@@ -90,6 +91,14 @@ $(function() {
     same(getColumnContents('checkboxes'), sorted_checkboxes, 'sorts checkboxes properly');
     $t.find('thead th#blanks').click();
     same(getColumnContents('blanks'), sorted_blanks, 'sorts blanks properly');
+  });
+
+  test("it ignores elements when sorting", function() {
+    var $t = getTable();
+    var links = ['<a href="#">yes</a>', '<a href="#">no</a>'];
+    addColumn('links', links);
+    $t.sortr();
+    equals($t.find('thead th#links').data('sortr-method'), 'bool', 'detects column as boolean');
   });
 
   test("it ignores columns with all of the same value", function() {

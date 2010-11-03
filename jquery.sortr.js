@@ -95,11 +95,12 @@
         var bool = true;
         var blanks = true;
         var checkbox = true;
-        var prev_value = null;
+        var $prev_td = null;
         var identical_values = true;
         $.each($rows, function(i, v) {
-          var value = $(v).children().eq($th.index()).html();
-          if(!prev_value) { prev_value = value; }
+          var $td = $(v).children().eq($th.index());
+          var value = $td.text().toLowerCase();
+          if(!$prev_td) { $prev_td = $td; }
           if(!isNumber(parseFloat(value))) {
             numeric = false;
           }
@@ -109,13 +110,13 @@
           if(!isInArray(value, opts.bool_true) && !isInArray(value, opts.bool_false)) {
             bool = false;
           }
-          if($.trim(value) != '' && (value != prev_value)) {
+          if($.trim($td.text()) != '' && ($td.html() != $prev_td.html())) {
             blanks = false;
           }
-          if(!$(v).children().eq($th.index()).children().is(':checkbox')) {
+          if(!$td.children().is(':checkbox')) {
             checkbox = false;
           }
-          if(value != prev_value) {
+          if($td != $prev_td) {
             identical_values = false;
           }
           prev_value = value;
