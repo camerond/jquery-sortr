@@ -98,7 +98,7 @@
           if($.trim(value) != '' && (value != prev_value)) {
             blank = false;
           }
-          if(!$(value).is('input[type="checkbox"]')) {
+          if(!$(v).children().eq($th.index()).children().is(':checkbox')) {
             checkbox = false;
           }
           prev_value = value;
