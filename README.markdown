@@ -4,11 +4,11 @@ A smart, minimal, clean jQuery table sorter. Fully unit tested with QUnit. Pagin
 
 ## Usage
 
-    $("#my_table_").sortr();
+    $("#my_table").sortr();
 
 ## Options
 
-Check the plugin. You can specify descending or ascending defaults for each sort type, and customize the definition of what constitutes a 'boolean' value (checkboxes along with strings of 'yes', 'no', 'true', and 'false' are detected automatically).
+Check the plugin. You can specify descending or ascending defaults for each sort type, and customize the definition of what constitutes a 'boolean' value. The following are auto-detected as boolean: checkboxes, strings of 'yes', 'no', 'true', and 'false', and a column where all the values are either identical or nonexistent (i.e. a column with 'X' or '').
 
     $t.sortr({
       ignore: {
