@@ -13,16 +13,18 @@ $(function() {
     $t.sortr();
     $t.find('thead th:first').click();
     same(getColumnContents('name'), sorted_names, 'sorts names properly');
+    equals($t.find('thead th:first').attr('class'), 'sortr-asc', 'applies sortr-asc class');
   });
 
   test("it detects & sorts numerical rows when th is clicked", function() {
     var $t = getTable();
     var ages = ['17','95','25','15','1','14'];
-    var sorted_ages = ['1','14','15','17','25','95'];
+    var sorted_ages = ['95', '25', '17', '15', '14', '1'];
     addColumn('age', ages);
     $t.sortr();
     $t.find('thead th:first').click();
     same(getColumnContents('age'), sorted_ages, 'sorts ages properly');
+    equals($t.find('thead th:first').attr('class'), 'sortr-desc', 'applies sortr-desc class');
   });
 
   test("it detects & sorts date rows when th is clicked", function() {
@@ -36,6 +38,7 @@ $(function() {
     $t.sortr();
     $t.find('thead th:first').click();
     same(getColumnContents('date'), sortedDates, 'sorts dates properly');
+    equals($t.find('thead th:first').attr('class'), 'sortr-desc', 'applies sortr-desc class');
     $t.find('thead th:last').click();
     same(getColumnContents('invalid dates'), sortedInvalidDates, 'sorts invalid dates properly');
   });
@@ -46,7 +49,7 @@ $(function() {
     var sorted_names = ['al', 'bob', 'fred', 'jim', 'mark', 'tom'];
     addColumn('name', names);
     var ages = ['17','95','25','15','1','14'];
-    var sorted_ages = ['1','14','15','17','25','95'];
+    var sorted_ages = ['95', '25', '17', '15', '14', '1'];
     addColumn('age', ages);
     $t.sortr();
     $t.find('thead th:first').click();
@@ -80,6 +83,7 @@ $(function() {
     $t.sortr();
     $t.find('thead th#yesno').click();
     same(getColumnContents('yesno'), sorted_yesno, 'sorts "yes" and "no" properly');
+    equals($t.find('thead th#yesno').attr('class'), 'sortr-desc', 'applies sortr-desc class');
     $t.find('thead th#truefalse').click();
     same(getColumnContents('truefalse'), sorted_truefalse, 'sorts "true" and "false" properly');
     $t.find('thead th#checkboxes').click();
@@ -141,6 +145,24 @@ $(function() {
       by: '#name'
     });
     same(getColumnContents('name'), sorted_names, 'sorts initial alpha column properly');
+  });
+
+  test("it allows new definitions of boolean values", function() {
+    var $t = getTable();
+    var values = ['yup', 'nope', 'yup', 'nope', 'nope'];
+    var sorted_values = ['yup', 'yup', 'nope', 'nope', 'nope'];
+    var yesno = ['yes', 'yes', 'no', 'yes', 'no'];
+    var sorted_yesno = ['yes', 'yes', 'yes', 'no', 'no'];
+    addColumn('values', values);
+    addColumn('yesno', yesno);
+    $t.sortr({
+      bool_true: ['yup'],
+      bool_false: ['nope']
+    });
+    $t.find('thead th:first').click();
+    equals($t.find('thead th:first').data('sortr-method'), 'bool', 'detects column as boolean');
+    same(getColumnContents('values'), sorted_values, 'sorts custom boolean column properly');
+    equals($t.find('thead th:last').data('sortr-method'), 'bool', 'remembers default boolean specifications');
   });
 
   test("it properly maintains initial row classes", function() {

@@ -24,6 +24,10 @@
     };
     var settings = $.extend({}, defaults, true);
     var opts = $.extend(settings, options, true);
+    if(options) {
+      $.isArray(options.bool_true) ? opts.bool_true = opts.bool_true.concat(defaults.bool_true) : false;
+      $.isArray(options.bool_false) ? opts.bool_false = opts.bool_false.concat(defaults.bool_false) : false;
+    }
 
     var get_sorted = {
       alpha: function(index, rows) {
@@ -39,7 +43,7 @@
           var i = $(a).children().eq(index).text();
           var j = $(b).children().eq(index).text();
           if(i == j) { return 0; }
-          return i < j ? -1 : 1;
+          return i > j ? -1 : 1;
         });
       },
       date: function(index, rows) {
