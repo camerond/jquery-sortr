@@ -90,46 +90,30 @@
       var $rows = $table.find('tbody tr');
       $table.find('thead th').not(opts.ignore).each(function() {
         var $th = $(this);
-        var numeric = true;
-        var date = true;
-        var bool = true;
-        var blanks = true;
-        var checkbox = true;
-        var $prev_td = null;
-        var identical_values = true;
+        var types = {};
+        var $prev_td;
         $.each($rows, function(i, v) {
+
           var $td = $(v).children().eq($th.index());
           var value = $td.text().toLowerCase();
-          if(!$prev_td) { $prev_td = $td; }
-          if(!isNumber(parseFloat(value))) {
-            numeric = false;
-          }
-          if(isNaN(Date.parse(value))) {
-            date = false;
-          }
-          if(!isInArray(value, opts.bool_true) && !isInArray(value, opts.bool_false)) {
-            bool = false;
-          }
-          if($.trim($td.text()) != '' && ($td.html() != $prev_td.html())) {
-            blanks = false;
-          }
-          if(!$td.children().is(':checkbox')) {
-            checkbox = false;
-          }
-          if($td != $prev_td) {
-            identical_values = false;
-          }
-          prev_value = value;
+          $prev_td = !$prev_td ? $td : $prev_td;
+
+          types.numeric = !isNumber(parseFloat(value)) ? false : types.numeric;
+          types.date = isNaN(Date.parse(value)) ? false : types.date;
+          types.bool = !isInArray(value, opts.bool_true) && !isInArray(value, opts.bool_false) ? false : types.bool;
+          types.blanks = $.trim($td.text()) != '' && ($td.html() != $prev_td.html()) ? false : types.blanks;
+          types.checkbox = !$td.children().is(':checkbox') ? false : types.checkbox;
+
+          types.identical = $td != $prev_td ? false : types.identical;
+
         });
         var method = 'alpha';
-        date ? method = 'date' : false;
-        numeric ? method = 'numeric' : false;
-        bool ? method = 'bool' : false;
-        blanks ? method = 'blanks' : false;
-        checkbox ? method = 'checkbox' : false;
-        if(!identical_values) {
-          $th.data(opts.class_prefix + 'method', method);
-        }
+        method = types.numeric == false ? method : 'numeric';
+        method = types.date == false ? method : 'date';
+        method = types.bool == false ? method : 'bool';
+        method = types.blanks == false ? method : 'blanks';
+        method = types.checkbox == false ? method : 'checkbox';
+        types.identical == false ? $th.data(opts.class_prefix + 'method', method) : false;
       });
     }
 
