@@ -116,7 +116,7 @@
     function autoSort($th) {
       var index = $th.index();
       var $rows = $th.parents('table:first').find('tbody tr');
-      var rowArray = $rows.detach().toArray();
+      var rowArray = $rows.removeClass().detach().toArray();
       if(isRowActive($th)) {
         return reverseRows($th, rowArray);
       }
@@ -124,7 +124,7 @@
       setPrimary($th, opts.default_sort[method]);
       var sorted = get_sorted[method](index, rowArray);
       (opts.default_sort[method] != defaults.default_sort[method]) ? sorted.reverse() : false;
-      return $(sorted);
+      return sorted;
     }
 
     function isRowActive($th) {
@@ -141,13 +141,28 @@
         $th.removeClass(desc);
         $th.addClass(asc);
       }
-      return $(rows.reverse());
+      return rows.reverse();
     }
 
     function setPrimary($th, suffix) {
       $th.siblings().removeClass(opts.class_prefix + 'desc');
       $th.siblings().removeClass(opts.class_prefix + 'asc');
       $th.addClass(opts.class_prefix + suffix);
+    }
+
+    function cacheClasses($table) {
+      var class_array = [];
+      $table.find('tbody tr').each(function() {
+        class_array.push($(this).attr('class'));
+      });
+      return class_array;
+    }
+
+    function restoreClasses($rows, class_cache) {
+      $rows.each(function(i) {
+        $(this).addClass(class_cache[i]);
+      });
+      return $rows;
     }
 
     function isNumber(n) {
@@ -166,10 +181,13 @@
 
     return this.each(function() {
       var $table = $(this);
+      var class_cache = cacheClasses($table);
       autoDetect($table);
       $table.find('thead th').not(opts.ignore).click(function() {
         var $th = $(this);
-        autoSort($th).appendTo($table.find('tbody'));
+        var sorted_row_array = autoSort($th);
+        var $sorted_rows = restoreClasses($(sorted_row_array), class_cache);
+        $sorted_rows.appendTo($table.find('tbody'));
       });
       if(opts.by) {
         $table.find('thead th').filter(opts.by).first().trigger('click');

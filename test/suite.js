@@ -133,6 +133,18 @@ $(function() {
     same(getColumnContents('name'), sorted_names, 'sorts initial alpha column properly');
   });
 
+  test("it properly maintains initial row classes", function() {
+    var $t = getTable();
+    var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
+    var sorted_names = ['al', 'bob', 'fred', 'jim', 'mark', 'tom'];
+    addColumn('name', names);
+    $t.find('tbody tr:even').addClass('alt');
+    $t.sortr();
+    $t.find('thead th#name').click();
+    equals($t.find('tbody tr:eq(0)').attr('class'), 'alt', '1st row has class of "alt"');
+    equals($t.find('tbody tr:eq(1)').attr('class'), '', '2nd row has no class');
+  });
+
   function addColumn(name, values) {
     var $t = getTable();
     var $th = $('<th />').text(name);
