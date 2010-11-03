@@ -88,6 +88,16 @@ $(function() {
     same(getColumnContents('blanks'), sorted_blanks, 'sorts blanks properly');
   });
 
+  test("it ignores columns with all of the same value", function() {
+    var $t = getTable();
+    var names = ['bob', 'jim', 'fred', 'mark', 'tom'];
+    var identical = ['x', 'x', 'x', 'x', 'x'];
+    addColumn('name', names);
+    addColumn('identical', identical);
+    $t.find('thead th#identical').click();
+    same(getColumnContents('name'), names, 'names column remains unchanged');
+  });
+
   test("it avoids columns specified in options", function() {
     var $t = getTable();
     var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];

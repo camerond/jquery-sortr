@@ -92,6 +92,7 @@
         var blanks = true;
         var checkbox = true;
         var prev_value = null;
+        var identical_values = true;
         $.each($rows, function(i, v) {
           var value = $(v).children().eq($th.index()).html();
           if(!prev_value) { prev_value = value; }
@@ -110,6 +111,9 @@
           if(!$(v).children().eq($th.index()).children().is(':checkbox')) {
             checkbox = false;
           }
+          if(value != prev_value) {
+            identical_values = false;
+          }
           prev_value = value;
         });
         var method = 'alpha';
@@ -118,7 +122,9 @@
         bool ? method = 'bool' : false;
         blanks ? method = 'blanks' : false;
         checkbox ? method = 'checkbox' : false;
-        $th.data('sortr-method', method);
+        if(!identical_values) {
+          $th.data(opts.class_prefix + 'method', method);
+        }
       });
     }
 
@@ -129,11 +135,14 @@
       if(isRowActive($th)) {
         return reverseRows($th, rowArray);
       }
-      var method = $th.data('sortr-method');
-      setPrimary($th, opts.default_sort[method]);
-      var sorted = get_sorted[method](index, rowArray);
-      (opts.default_sort[method] != defaults.default_sort[method]) ? sorted.reverse() : false;
-      return sorted;
+      var method = $th.data(opts.class_prefix + 'method');
+      if(method) {
+        setPrimary($th, opts.default_sort[method]);
+        var sorted = get_sorted[method](index, rowArray);
+        (opts.default_sort[method] != defaults.default_sort[method]) ? sorted.reverse() : false;
+        return sorted;
+      }
+      return rowArray;
     }
 
     function isRowActive($th) {
