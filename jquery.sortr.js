@@ -60,7 +60,7 @@
           return value;
         });
       },
-      blank: function(index, rows) {
+      blanks: function(index, rows) {
         return rows.sort(function(a, b) {
           var value = 0;
           var i = $.trim($(a).children().eq(index).text());
@@ -89,7 +89,7 @@
         var numeric = true;
         var date = true;
         var bool = true;
-        var blank = true;
+        var blanks = true;
         var checkbox = true;
         var prev_value = null;
         $.each($rows, function(i, v) {
@@ -105,7 +105,7 @@
             bool = false;
           }
           if($.trim(value) != '' && (value != prev_value)) {
-            blank = false;
+            blanks = false;
           }
           if(!$(v).children().eq($th.index()).children().is(':checkbox')) {
             checkbox = false;
@@ -116,7 +116,7 @@
         date ? method = 'date' : false;
         numeric ? method = 'numeric' : false;
         bool ? method = 'bool' : false;
-        blank ? method = 'blank' : false;
+        blanks ? method = 'blanks' : false;
         checkbox ? method = 'checkbox' : false;
         $th.data('sortr-method', method);
       });
