@@ -64,8 +64,8 @@
       bool: function(index, rows) {
         return rows.sort(function(a, b) {
           var value = 0;
-          var i = $(a).children().eq(index).text();
-          var j = $(b).children().eq(index).text();
+          var i = $(a).children().eq(index).text().toLowerCase();
+          var j = $(b).children().eq(index).text().toLowerCase();
           isInArray(i, opts.bool_true) && isInArray(j, opts.bool_false) ? value = -1 : false;
           isInArray(i, opts.bool_false) && isInArray(j, opts.bool_true) ? value = 1 : false;
           return value;
