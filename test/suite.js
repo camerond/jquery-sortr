@@ -7,63 +7,47 @@ $(function() {
 
   test("it defaults to sorting a row alphabetically when th is clicked", function() {
     var $t = getTable();
-    var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
-    var sorted_names = ['al', 'bob', 'fred', 'jim', 'mark', 'tom'];
-    addColumn('name', names);
+    var names = ['bob smith', 'jim smith', 'fred bob', 'marky mark', 'tom thompson', 'alvenue fredrique'];
+    var sorted_names = ['alvenue fredrique', 'bob smith', 'fred bob', 'jim smith', 'marky mark', 'tom thompson'];
+    var $th = addColumn('name', names);
     $t.sortr();
-    $t.find('thead th:first').click();
+    checkColumnType($th, 'alpha');
+    $th.click();
     same(getColumnContents('name'), sorted_names, 'sorts names properly');
-    equals($t.find('thead th:first').attr('class'), 'sortr-asc', 'applies sortr-asc class');
+    equals($th.attr('class'), 'sortr-asc', 'applies sortr-asc class');
   });
 
   test("it detects & sorts numerical rows when th is clicked", function() {
     var $t = getTable();
-    var ages = ['17','95','25','15','1','14'];
-    var sorted_ages = ['95', '25', '17', '15', '14', '1'];
-    addColumn('age', ages);
+    var ages = ['17','95','25','15','0.1','14'];
+    var sorted_ages = ['95', '25', '17', '15', '14', '0.1'];
+    var $th = addColumn('age', ages);
     $t.sortr();
-    $t.find('thead th:first').click();
+    checkColumnType($th, 'numeric');
+    $th.click();
     same(getColumnContents('age'), sorted_ages, 'sorts ages properly');
-    equals($t.find('thead th:first').attr('class'), 'sortr-desc', 'applies sortr-desc class');
+    equals($th.attr('class'), 'sortr-desc', 'applies sortr-desc class');
   });
 
-  test("it detects & sorts date rows when th is clicked", function() {
+  test("it detects & sorts date rows when th is clicked, falling back to alphabetical, and reversing active row if clicked", function() {
     var $t = getTable();
     var dates = ['July 14, 2001', 'December 15, 2001', 'August 8, 1983', 'January 14, 2000'];
-    var sortedDates = ['December 15, 2001', 'July 14, 2001', 'January 14, 2000', 'August 8, 1983'];
-    var invalidDates = ['foo', 'July 2001', '3523', 'bar'];
-    var sortedInvalidDates = ['3523', 'bar', 'foo', 'July 2001'];
-    addColumn('date', dates);
-    addColumn('invalid dates', invalidDates);
+    var sorted_dates = ['December 15, 2001', 'July 14, 2001', 'January 14, 2000', 'August 8, 1983'];
+    var invalid_dates = ['foo', 'July 2001', '3523', 'bar'];
+    var $th_dates = addColumn('date', dates);
+    var $th_invalid = addColumn('invalid dates', invalid_dates);
     $t.sortr();
-    $t.find('thead th:first').click();
-    same(getColumnContents('date'), sortedDates, 'sorts dates properly');
-    equals($t.find('thead th:first').attr('class'), 'sortr-desc', 'applies sortr-desc class');
-    $t.find('thead th:last').click();
-    same(getColumnContents('invalid dates'), sortedInvalidDates, 'sorts invalid dates properly');
-  });
-
-  test("it reverses sort when the actively sorted th is clicked", function() {
-    var $t = getTable();
-    var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
-    var sorted_names = ['al', 'bob', 'fred', 'jim', 'mark', 'tom'];
-    addColumn('name', names);
-    var ages = ['17','95','25','15','1','14'];
-    var sorted_ages = ['95', '25', '17', '15', '14', '1'];
-    addColumn('age', ages);
-    $t.sortr();
-    $t.find('thead th:first').click();
-    same(getColumnContents('name'), sorted_names, 'sorts names properly');
-    equals($t.find('thead th:first').attr('class'), 'sortr-asc', 'has proper class of "sortr-asc"');
-    $t.find('thead th:first').click();
-    same(getColumnContents('name').reverse(), sorted_names, 'reverses name sort properly');
-    equals($t.find('thead th:first').attr('class'), 'sortr-desc', 'has proper class of "sortr-desc"');
-    $t.find('thead th:last').click();
-    same(getColumnContents('age'), sorted_ages, 'sorts ages properly');
-    equals($t.find('thead th:last').attr('class'), 'sortr-desc', 'has proper class of "sortr-asc"');
-    $t.find('thead th:last').click();
-    same(getColumnContents('age').reverse(), sorted_ages, 'reverses age sort properly');
-    equals($t.find('thead th:last').attr('class'), 'sortr-asc', 'has proper class of "sortr-desc"');
+    checkColumnType($th_dates, 'date');
+    checkColumnType($th_invalid, 'alpha');
+    $th_dates.click();
+    same(getColumnContents('date'), sorted_dates, 'sorts dates properly');
+    equals($th_dates.attr('class'), 'sortr-desc', 'applies sortr-desc class');
+    $th_invalid.click();
+    $th_dates.click();
+    $th_dates.click();
+    equals($th_invalid.attr('class'), '', 'removes sortr class from inactive column');
+    same(getColumnContents('date'), sorted_dates.reverse(), 'reverses sort properly');
+    equals($th_dates.attr('class'), 'sortr-asc', 'applies sortr-asc class');
   });
   
   test("it detects & sorts boolean rows when th is clicked", function() {
@@ -76,38 +60,41 @@ $(function() {
     var sorted_checkboxes = ['<input type="checkbox" checked="checked">','<input type="checkbox" checked="checked">','<input type="checkbox" checked="checked">','<input type="checkbox">','<input type="checkbox">'];
     var blanks = ['X', '', 'X', '', 'X'];
     var sorted_blanks = ['X', 'X', 'X', '', ''];
-    addColumn('yesno', yesno);
-    addColumn('truefalse', truefalse);
-    addColumn('checkboxes', checkboxes);
-    addColumn('blanks', blanks);
+    var $th_yesno = addColumn('yesno', yesno);
+    var $th_truefalse = addColumn('truefalse', truefalse);
+    var $th_checkboxes = addColumn('checkboxes', checkboxes);
+    var $th_blanks = addColumn('blanks', blanks);
     $t.sortr();
-    equals($t.find('thead th#blanks').data('sortr-method'), 'blanks', 'detects column as blanks');
-    $t.find('thead th#yesno').click();
+    checkColumnType($th_yesno, 'bool');
+    checkColumnType($th_truefalse, 'bool');
+    checkColumnType($th_checkboxes, 'checkbox');
+    checkColumnType($th_blanks, 'blanks');
+    $th_yesno.click();
     same(getColumnContents('yesno'), sorted_yesno, 'sorts "yes" and "no" properly');
-    equals($t.find('thead th#yesno').attr('class'), 'sortr-desc', 'applies sortr-desc class');
-    $t.find('thead th#truefalse').click();
+    equals($th_yesno.attr('class'), 'sortr-desc', 'applies sortr-desc class');
+    $th_truefalse.click();
     same(getColumnContents('truefalse'), sorted_truefalse, 'sorts "true" and "false" properly');
-    $t.find('thead th#checkboxes').click();
+    $th_checkboxes.click();
     same(getColumnContents('checkboxes'), sorted_checkboxes, 'sorts checkboxes properly');
-    $t.find('thead th#blanks').click();
+    $th_blanks.click();
     same(getColumnContents('blanks'), sorted_blanks, 'sorts blanks properly');
   });
 
   test("it ignores elements when sorting", function() {
     var $t = getTable();
     var links = ['<a href="#">yes</a>', '<a href="#">no</a>'];
-    addColumn('links', links);
+    var $th = addColumn('links', links);
     $t.sortr();
-    equals($t.find('thead th#links').data('sortr-method'), 'bool', 'detects column as boolean');
+    checkColumnType($th, 'bool');
   });
 
   test("it ignores columns with all of the same value", function() {
     var $t = getTable();
     var names = ['bob', 'jim', 'fred', 'mark', 'tom'];
     var identical = ['x', 'x', 'x', 'x', 'x'];
-    addColumn('name', names);
-    addColumn('identical', identical);
-    $t.find('thead th#identical').click();
+    var $th_names = addColumn('name', names);
+    var $th_identical = addColumn('identical', identical);
+    $th_identical.click();
     same(getColumnContents('name'), names, 'names column remains unchanged');
   });
 
@@ -115,19 +102,18 @@ $(function() {
     var $t = getTable();
     var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
     var sorted_names = ['al', 'bob', 'fred', 'jim', 'mark', 'tom'];
-    addColumn('name', names);
-    addColumn('ignore', names);
-    addColumn('class_ignore', names);
-    $t.find("thead th#class_ignore").addClass('ignore');
+    var $th_names = addColumn('name', names);
+    var $th_ignore = addColumn('ignore', names);
+    var $th_class_ignore = addColumn('class_ignore', names);
+    $th_class_ignore.addClass('ignore');
     $t.sortr({
         ignore: '.ignore, #ignore'
     });
-    $t.find('thead th#ignore').click();
-    same(getColumnContents('ignore'), names, 'ignores column disabled by class');
-    $t.find('thead th.ignore').click();
+    $th_ignore.click();
+    same(getColumnContents('ignore'), names, 'ignores column disabled by id');
+    $th_class_ignore.click();
     same(getColumnContents('class_ignore'), names, 'ignores column disabled by class');
-    same(getColumnContents('param_ignore_2'), names, 'ignores column disabled by class');
-    $t.find('thead th#name').click();
+    $th_names.click();
     same(getColumnContents('name'), sorted_names, 'sorts enabled column properly');
   });
 
@@ -135,13 +121,13 @@ $(function() {
     var $t = getTable();
     var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
     var sorted_names = ['tom', 'mark', 'jim', 'fred', 'bob', 'al'];
-    addColumn('name', names);
+    var $th = addColumn('name', names);
     $t.sortr({
       default_sort: {
         alpha: 'desc'
       }
     });
-    $t.find('thead th#name').click();
+    $th.click();
     same(getColumnContents('name'), sorted_names, 'sorts reversed alpha column properly');
   });
 
@@ -162,26 +148,26 @@ $(function() {
     var sorted_values = ['yup', 'yup', 'nope', 'nope', 'nope'];
     var yesno = ['yes', 'yes', 'no', 'yes', 'no'];
     var sorted_yesno = ['yes', 'yes', 'yes', 'no', 'no'];
-    addColumn('values', values);
-    addColumn('yesno', yesno);
+    var $th_values = addColumn('values', values);
+    var $th_yesno = addColumn('yesno', yesno);
     $t.sortr({
       bool_true: ['yup'],
       bool_false: ['nope']
     });
-    $t.find('thead th:first').click();
-    equals($t.find('thead th:first').data('sortr-method'), 'bool', 'detects column as boolean');
+    checkColumnType($th_values, 'bool');
+    $th_values.click();
     same(getColumnContents('values'), sorted_values, 'sorts custom boolean column properly');
-    equals($t.find('thead th:last').data('sortr-method'), 'bool', 'remembers default boolean specifications');
+    equals($t.find('thead th#yesno').data('sortr-method'), 'bool', 'remembers default boolean specifications');
   });
 
   test("it properly maintains initial row classes", function() {
     var $t = getTable();
     var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
     var sorted_names = ['al', 'bob', 'fred', 'jim', 'mark', 'tom'];
-    addColumn('name', names);
+    var $th = addColumn('name', names);
     $t.find('tbody tr:even').addClass('alt');
     $t.sortr();
-    $t.find('thead th#name').click();
+    $th.click();
     equals($t.find('tbody tr:eq(0)').attr('class'), 'alt', '1st row has class of "alt"');
     equals($t.find('tbody tr:eq(1)').attr('class'), '', '2nd row has no class');
   });
@@ -200,6 +186,7 @@ $(function() {
       $td.appendTo($tr);
     });
     same(getColumnContents(name), values, 'appends columns properly');
+    return $th;
   }
 
   function getColumnContents(id) {
@@ -211,6 +198,10 @@ $(function() {
       contents.push($(this).find('td').eq(i).html());
     });
     return contents;
+  }
+
+  function checkColumnType($th, type) {
+    equals($th.data('sortr-method'), type, 'detects column as ' + type);
   }
 
   function getTable() {
