@@ -28,17 +28,26 @@
     var get_sorted = {
       alpha: function(index, rows) {
         return rows.sort(function(a, b) {
-          return $(a).children().eq(index).text().toLowerCase() > $(b).children().eq(index).text().toLowerCase();
+          var i = $(a).children().eq(index).text().toLowerCase();
+          var j = $(b).children().eq(index).text().toLowerCase();
+          if(i == j) { return 0; }
+          return i < j ? -1 : 1;
         });
       },
       numeric: function(index, rows) {
         return rows.sort(function(a, b) {
-          return $(a).children().eq(index).text() - $(b).children().eq(index).text();
+          var i = $(a).children().eq(index).text();
+          var j = $(b).children().eq(index).text();
+          if(i == j) { return 0; }
+          return i < j ? -1 : 1;
         });
       },
       date: function(index, rows) {
         return rows.sort(function(a, b) {
-          return Date.parse($(b).children().eq(index).text()) - Date.parse($(a).children().eq(index).text());
+          var i = Date.parse($(b).children().eq(index).text());
+          var j = Date.parse($(a).children().eq(index).text());
+          if(i == j) { return 0; }
+          return i < j ? -1 : 1;
         });
       },
       checkbox: function(index, rows) {
