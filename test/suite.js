@@ -131,7 +131,7 @@ $(function() {
     same(getColumnContents('name'), sorted_names, 'sorts reversed alpha column properly');
   });
 
-  test("it allows manual initial sorting", function() {
+  test("it allows manual initial sorting by parameter", function() {
     var $t = getTable();
     var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
     var sorted_names = ['al', 'bob', 'fred', 'jim', 'mark', 'tom'];
@@ -170,6 +170,24 @@ $(function() {
     $th.click();
     equals($t.find('tbody tr:eq(0)').attr('class'), 'alt', '1st row has class of "alt"');
     equals($t.find('tbody tr:eq(1)').attr('class'), '', '2nd row has no class');
+  });
+
+  test("it properly handles callback function", function() {
+    var $t = getTable();
+    var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
+    var sorted_names = ['bob', 'al', 'fred', 'jim', 'mark', 'tom'];
+    var $th = addColumn('name', names);
+    var $tr;
+    $t.sortr({
+      onStart: function() {
+        $tr = $(this).find('tbody tr:first').detach();
+      },
+      onComplete: function() {
+        $(this).find('tbody').prepend($tr);
+      }
+    });
+    $th.click();
+    same(getColumnContents('name'), sorted_names, 'sorts names with locked first row properly');
   });
 
   function addColumn(name, values) {

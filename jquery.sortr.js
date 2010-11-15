@@ -20,7 +20,9 @@
         'false'
       ],
       ignore : '',
-      by: ''
+      by: '',
+      onStart: function() {},
+      onComplete: function(){}
     };
     var settings = $.extend({}, defaults, true);
     var opts = $.extend(settings, options, true);
@@ -189,15 +191,18 @@
     return this.each(function() {
       var $table = $(this);
       var class_cache = cacheClasses($table);
+      var $th = $table.find('thead th');
       autoDetect($table);
-      $table.find('thead th').not(opts.ignore).click(function() {
+      $th.not(opts.ignore).click(function() {
+        opts.onStart.call($table);
         var $th = $(this);
         var sorted_row_array = autoSort($th);
         var $sorted_rows = restoreClasses($(sorted_row_array), class_cache);
         $sorted_rows.appendTo($table.find('tbody'));
+        opts.onComplete.call($table);
       });
       if(opts.by) {
-        $table.find('thead th').filter(opts.by).first().trigger('click');
+        $th.filter(opts.by).first().trigger('click');
       }
     });
 
