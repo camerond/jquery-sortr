@@ -42,8 +42,8 @@
       },
       numeric: function(index, rows) {
         return rows.sort(function(a, b) {
-          var i = $(a).children().eq(index).text();
-          var j = $(b).children().eq(index).text();
+          var i = $(a).children().eq(index).data('value');
+          var j = $(b).children().eq(index).data('value');
           if(i == j) { return 0; }
           return i > j ? -1 : 1;
         });
@@ -100,7 +100,7 @@
           var value = $td.text().toLowerCase();
           $prev_td = !$prev_td ? $td : $prev_td;
 
-          types.numeric = !isNumber(parseFloat(value)) ? false : types.numeric;
+          types.numeric = !isNumber($td, value) ? false : types.numeric;
           types.date = isNaN(Date.parse(value)) ? false : types.date;
           types.bool = !isInArray(value, opts.bool_true) && !isInArray(value, opts.bool_false) ? false : types.bool;
           types.blanks = $.trim($td.text()) != '' && ($td.html() != $prev_td.html()) ? false : types.blanks;
@@ -174,8 +174,20 @@
       return $rows;
     }
 
-    function isNumber(n) {
-      return !isNaN(parseFloat(n)) && isFinite(n);
+    function isNumber($td, n) {
+      var percentage;
+      if(typeof n != 'string') { return false; }
+      if(n.charAt(n.length-1) === '%') {
+        percentage = true;
+      }
+      var numeric_value = n.replace(/[$%º¤¥£¢]/, '');
+      if(!isNaN(parseFloat(numeric_value)) && isFinite(numeric_value)) {
+        percentage ? numeric_value = numeric_value / 100 : false;
+        $td.data('value', numeric_value);
+        return true;
+      } else {
+        return false;
+      }
     }
 
     function isInArray(v, a)

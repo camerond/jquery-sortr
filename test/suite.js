@@ -19,13 +19,13 @@ $(function() {
 
   test("it detects & sorts numerical rows when th is clicked", function() {
     var $t = getTable();
-    var ages = ['17','95','25','15','0.1','14'];
-    var sorted_ages = ['95', '25', '17', '15', '14', '0.1'];
-    var $th = addColumn('age', ages);
+    var numbers = ['17','95.25','25%','$15','0.1','14'];
+    var sorted_numbers = ["95.25", "17", "$15", "14", "25%", "0.1"];
+    var $th = addColumn('number', numbers);
     $t.sortr();
     checkColumnType($th, 'numeric');
     $th.click();
-    same(getColumnContents('age'), sorted_ages, 'sorts ages properly');
+    same(getColumnContents('number'), sorted_numbers, 'sorts numbers properly');
     equals($th.attr('class'), 'sortr-desc', 'applies sortr-desc class');
   });
 
