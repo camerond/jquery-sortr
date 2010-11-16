@@ -95,6 +95,7 @@ $(function() {
     var $th_names = addColumn('name', names);
     var $th_identical = addColumn('identical', identical);
     $th_identical.click();
+    checkColumnType($th_identical, null);
     same(getColumnContents('name'), names, 'names column remains unchanged');
   });
 

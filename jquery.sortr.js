@@ -106,7 +106,7 @@
           types.blanks = $.trim($td.text()) != '' && ($td.html() != $prev_td.html()) ? false : types.blanks;
           types.checkbox = !$td.children().is(':checkbox') ? false : types.checkbox;
 
-          types.identical = $td != $prev_td ? false : types.identical;
+          types.identical = $td.html() != $prev_td.html() ? false : types.identical;
 
         });
         var method = 'alpha';
