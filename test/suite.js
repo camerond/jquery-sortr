@@ -181,10 +181,10 @@ $(function() {
     var $tr;
     $t.sortr({
       onStart: function() {
-        $tr = $(this).find('tbody tr:first').detach();
+        $tr = this.parents('table').find('tbody tr:first').detach();
       },
       onComplete: function() {
-        $(this).find('tbody').prepend($tr);
+        this.parents('table').find('tbody').prepend($tr);
       }
     });
     $th.click();

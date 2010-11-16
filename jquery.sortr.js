@@ -206,12 +206,14 @@
       var $th = $table.find('thead th');
       autoDetect($table);
       $th.not(opts.ignore).click(function() {
-        opts.onStart.call($table);
         var $th = $(this);
-        var sorted_row_array = autoSort($th);
-        var $sorted_rows = restoreClasses($(sorted_row_array), class_cache);
-        $sorted_rows.appendTo($table.find('tbody'));
-        opts.onComplete.call($table);
+        if($th.data('sortr-method')) {
+          opts.onStart.apply($th);
+          var sorted_row_array = autoSort($th);
+          var $sorted_rows = restoreClasses($(sorted_row_array), class_cache);
+          $sorted_rows.appendTo($table.find('tbody'));
+          opts.onComplete.apply($th);
+        }
       });
       if(opts.by) {
         $th.filter(opts.by).first().trigger('click');
