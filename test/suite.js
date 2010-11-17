@@ -88,6 +88,24 @@ $(function() {
     checkColumnType($th, 'bool');
   });
 
+  test("it sorts by text input values if entire column is input elements", function() {
+    var $t = getTable();
+    var alpha_inputs = ['<input type="text" value="Theodore">', '<input type="text" value="Bob">', '<input type="text" value="Callahan">'];
+    var numeric_inputs = ['<input type="text" value="24">', '<input type="text" value="525">', '<input type="text" value="353">'];
+    var sorted_alpha_inputs = ['<input type="text" value="Bob">', '<input type="text" value="Callahan">', '<input type="text" value="Theodore">'];
+    var sorted_numeric_inputs = ['<input type="text" value="525">', '<input type="text" value="353">', '<input type="text" value="24">'];
+    var $th_alpha = addColumn('alpha', alpha_inputs);
+    var $th_numeric = addColumn('numeric', numeric_inputs);
+    $t.sortr();
+    checkColumnType($th_alpha, 'alpha');
+    checkColumnType($th_numeric, 'numeric');
+    $th_alpha.click();
+    same(getColumnContents('alpha'), sorted_alpha_inputs, 'sorts inputs with alpha values properly');
+    $th_numeric.click();
+    same(getColumnContents('numeric'), sorted_numeric_inputs, 'sorts inputs with numeric values properly');
+  });
+
+
   test("it ignores columns with all of the same value", function() {
     var $t = getTable();
     var names = ['bob', 'jim', 'fred', 'mark', 'tom'];
@@ -193,13 +211,13 @@ $(function() {
 
   function addColumn(name, values) {
     var $t = getTable();
-    var $th = $('<th />').text(name);
+    var $th = $('<th>').text(name);
     $th.appendTo($t.find('thead')).attr('id', name);
     $.each(values, function(i, v) {
-      var $td = $('<td />').html(v);
+      var $td = $('<td>').html(v);
       var $tr = $t.find('tbody tr')[i];
       if (!$tr) {
-        $tr = $('<tr />');
+        $tr = $('<tr>');
         $tr.appendTo($t.find('tbody'));
       }
       $td.appendTo($tr);
