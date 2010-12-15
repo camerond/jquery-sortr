@@ -34,24 +34,24 @@
     var get_sorted = {
       alpha: function(index, rows) {
         return rows.sort(function(a, b) {
-          var i = $(a).children().eq(index).data('sortr-value').toLowerCase();
-          var j = $(b).children().eq(index).data('sortr-value').toLowerCase();
+          var i = $(a).children().eq(index).attr('data-sortr-value').toLowerCase();
+          var j = $(b).children().eq(index).attr('data-sortr-value').toLowerCase();
           if(i == j) { return 0; }
           return i < j ? -1 : 1;
         });
       },
       numeric: function(index, rows) {
         return rows.sort(function(a, b) {
-          var i = $(a).children().eq(index).data('sortr-value');
-          var j = $(b).children().eq(index).data('sortr-value');
+          var i = $(a).children().eq(index).attr('data-sortr-value');
+          var j = $(b).children().eq(index).attr('data-sortr-value');
           if(i == j) { return 0; }
           return i > j ? -1 : 1;
         });
       },
       date: function(index, rows) {
         return rows.sort(function(a, b) {
-          var i = Date.parse($(b).children().eq(index).data('sortr-value'));
-          var j = Date.parse($(a).children().eq(index).data('sortr-value'));
+          var i = Date.parse($(b).children().eq(index).attr('data-sortr-value'));
+          var j = Date.parse($(a).children().eq(index).attr('data-sortr-value'));
           if(i == j) { return 0; }
           return i < j ? -1 : 1;
         });
@@ -97,7 +97,7 @@
         $.each($rows, function(i, v) {
           var $td = $(v).children().eq($th.index());
           var value = $td.children().is('input:text') ? $td.find('input:text').val().toLowerCase() : $td.text().toLowerCase();
-          $td.data('sortr-value', value);
+          $td.attr('data-sortr-value', value);
           $prev_td = !$prev_td ? $td : $prev_td;
 
           types.numeric = !isNumber($td, value) ? false : types.numeric;
@@ -115,7 +115,7 @@
         method = types.bool === false ? method : 'bool';
         method = types.blanks === false ? method : 'blanks';
         method = types.checkbox === false ? method : 'checkbox';
-        ((types.identical === false) || (method === 'checkbox')) ? $th.data('sortr-method', method) : false;
+        ((types.identical === false) || (method === 'checkbox')) ? $th.attr('data-sortr-method', method) : false;
       });
     }
 
@@ -126,7 +126,7 @@
       if(isRowActive($th)) {
         return reverseRows($th, rowArray);
       }
-      var method = $th.data(opts.class_prefix + 'method');
+      var method = $th.attr('data-' + opts.class_prefix + 'method');
       if(method) {
         setPrimary($th, opts.default_sort[method]);
         var sorted = get_sorted[method](index, rowArray);
@@ -183,7 +183,7 @@
       var numeric_value = n.replace(/[$%º¤¥£¢]/, '');
       if(!isNaN(parseFloat(numeric_value)) && isFinite(numeric_value)) {
         percentage ? numeric_value = numeric_value / 100 : false;
-        $td.data('sortr-value', numeric_value);
+        $td.attr('data-sortr-value', numeric_value);
         return true;
       } else {
         return false;
@@ -207,7 +207,7 @@
       autoDetect($table);
       $th.not(opts.ignore).click(function() {
         var $th = $(this);
-        if($th.data('sortr-method')) {
+        if($th.attr('data-sortr-method')) {
           opts.onStart.apply($th);
           var sorted_row_array = autoSort($th);
           var $sorted_rows = restoreClasses($(sorted_row_array), class_cache);

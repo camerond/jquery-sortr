@@ -105,7 +105,6 @@ $(function() {
     same(getColumnContents('numeric'), sorted_numeric_inputs, 'sorts inputs with numeric values properly');
   });
 
-
   test("it ignores columns with all of the same value", function() {
     var $t = getTable();
     var names = ['bob', 'jim', 'fred', 'mark', 'tom'];
@@ -176,7 +175,7 @@ $(function() {
     checkColumnType($th_values, 'bool');
     $th_values.click();
     same(getColumnContents('values'), sorted_values, 'sorts custom boolean column properly');
-    equals($t.find('thead th#yesno').data('sortr-method'), 'bool', 'remembers default boolean specifications');
+    equals($t.find('thead th#yesno').attr('data-sortr-method'), 'bool', 'remembers default boolean specifications');
   });
 
   test("it properly maintains initial row classes", function() {
@@ -238,7 +237,7 @@ $(function() {
   }
 
   function checkColumnType($th, type) {
-    equals($th.data('sortr-method'), type, 'detects column as ' + type);
+    equals($th.attr('data-sortr-method'), type, 'detects column as ' + type);
   }
 
   function getTable() {
