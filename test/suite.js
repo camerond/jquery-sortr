@@ -160,6 +160,16 @@ $(function() {
     same(getColumnContents('name'), sorted_names, 'sorts initial alpha column properly');
   });
 
+  test("it allows manual initial sorting by class", function() {
+    var $t = getTable();
+    var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
+    var sorted_names = ['al', 'bob', 'fred', 'jim', 'mark', 'tom'];
+    var $th = addColumn('name', names);
+    $th.addClass('sortr-default');
+    $t.sortr();
+    same(getColumnContents('name'), sorted_names, 'sorts initial alpha column properly');
+  });
+
   test("it allows new definitions of boolean values", function() {
     var $t = getTable();
     var values = ['yup', 'nope', 'yup', 'nope', 'nope'];

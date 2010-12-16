@@ -204,6 +204,7 @@
       var $table = $(this);
       var class_cache = cacheClasses($table);
       var $th = $table.find('thead th');
+      var $default_sort = $th.filter('.' + opts.class_prefix + 'default');
       autoDetect($table);
       $th.not(opts.ignore).click(function() {
         var $th = $(this);
@@ -215,7 +216,9 @@
           opts.onComplete.apply($th);
         }
       });
-      if(opts.by) {
+      if($default_sort.length) {
+        $default_sort.first().click();
+      } else if(opts.by) {
         $th.filter(opts.by).first().trigger('click');
       }
     });
