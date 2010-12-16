@@ -19,14 +19,20 @@ $(function() {
 
   test("it detects & sorts numerical rows when th is clicked", function() {
     var $t = getTable();
+    var floats = ['0.5', '0.0', '0.2', '0.7', '0.4', '0.4'];
+    var sorted_floats = ['0.7', '0.5', '0.4', '0.4', '0.2', '0.0'];
     var numbers = ['17','95.25','25%','$15','0.1','14'];
     var sorted_numbers = ["95.25", "17", "$15", "14", "25%", "0.1"];
-    var $th = addColumn('number', numbers);
+    var $numbers = addColumn('number', numbers);
+    var $floats = addColumn('float', floats);
     $t.sortr();
-    checkColumnType($th, 'numeric');
-    $th.click();
+    checkColumnType($numbers, 'numeric');
+    checkColumnType($floats, 'numeric');
+    $numbers.click();
     same(getColumnContents('number'), sorted_numbers, 'sorts numbers properly');
-    equals($th.attr('class'), 'sortr-desc', 'applies sortr-desc class');
+    $floats.click();
+    same(getColumnContents('float'), sorted_floats, 'sorts floats properly');
+    equals($floats.attr('class'), 'sortr-desc', 'applies sortr-desc class');
   });
 
   test("it detects & sorts date rows when th is clicked, falling back to alphabetical, and reversing active row if clicked", function() {
