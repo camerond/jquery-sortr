@@ -21,8 +21,8 @@ $(function() {
     var $t = getTable();
     var floats = ['0.5', '0.0', '0.2', '0.7', '0.4', '0.4'];
     var sorted_floats = ['0.7', '0.5', '0.4', '0.4', '0.2', '0.0'];
-    var numbers = ['17','95.25','25%','$15','0.1','14'];
-    var sorted_numbers = ["95.25", "17", "$15", "14", "25%", "0.1"];
+    var numbers = ['17','95.25','25%','$15','0.1','100'];
+    var sorted_numbers = ["100", "95.25", "17", "$15", "25%", "0.1"];
     var $numbers = addColumn('number', numbers);
     var $floats = addColumn('float', floats);
     $t.sortr();

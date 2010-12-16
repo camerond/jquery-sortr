@@ -42,8 +42,8 @@
       },
       numeric: function(index, rows) {
         return rows.sort(function(a, b) {
-          var i = $(a).children().eq(index).attr('data-sortr-value');
-          var j = $(b).children().eq(index).attr('data-sortr-value');
+          var i = parseFloat($(a).children().eq(index).attr('data-sortr-value'));
+          var j = parseFloat($(b).children().eq(index).attr('data-sortr-value'));
           if(i == j) { return 0; }
           return i > j ? -1 : 1;
         });
