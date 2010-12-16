@@ -115,7 +115,7 @@
         method = types.bool === false ? method : 'bool';
         method = types.blanks === false ? method : 'blanks';
         method = types.checkbox === false ? method : 'checkbox';
-        ((types.identical === false) || (method === 'checkbox')) ? $th.attr('data-sortr-method', method) : false;
+        ((types.identical === false) || (method === 'checkbox')) ? $th.attr('data-sortr-method', method) : $th.attr('data-sortr-method', '');
       });
     }
 
