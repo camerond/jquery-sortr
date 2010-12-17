@@ -117,8 +117,9 @@ $(function() {
     var identical = ['x', 'x', 'x', 'x', 'x'];
     var $th_names = addColumn('name', names);
     var $th_identical = addColumn('identical', identical);
+    $t.sortr();
     $th_identical.click();
-    checkColumnType($th_identical, null);
+    checkColumnType($th_identical, '');
     same(getColumnContents('name'), names, 'names column remains unchanged');
   });
 
@@ -134,6 +135,7 @@ $(function() {
         ignore: '.ignore, #ignore'
     });
     $th_ignore.click();
+    checkColumnType($th_ignore, '');
     same(getColumnContents('ignore'), names, 'ignores column disabled by id');
     $th_class_ignore.click();
     same(getColumnContents('class_ignore'), names, 'ignores column disabled by class');
@@ -253,7 +255,7 @@ $(function() {
   }
 
   function checkColumnType($th, type) {
-    equals($th.attr('data-sortr-method'), type, 'detects column as ' + type);
+    equals($th.attr('data-sortr-method'), type, 'detects column as "' + type + '"');
   }
 
   function getTable() {

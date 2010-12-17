@@ -90,32 +90,36 @@
 
     function autoDetect($table) {
       var $rows = $table.find('tbody tr');
-      $table.find('thead th').not(opts.ignore).each(function() {
+      $table.find('thead th').each(function() {
         var $th = $(this);
         var types = {};
         var $prev_td;
-        $.each($rows, function(i, v) {
-          var $td = $(v).children().eq($th.index());
-          var value = $td.children().is('input:text') ? $td.find('input:text').val().toLowerCase() : $td.text().toLowerCase();
-          $td.attr('data-sortr-value', value);
-          $prev_td = !$prev_td ? $td : $prev_td;
+        $th.attr('data-sortr-method', '');
+        if (!$th.is(opts.ignore)) {
+          $.each($rows, function(i, v) {
 
-          types.numeric = !isNumber($td, value) ? false : types.numeric;
-          types.date = isNaN(Date.parse(value)) ? false : types.date;
-          types.bool = !isInArray(value, opts.bool_true) && !isInArray(value, opts.bool_false) ? false : types.bool;
-          types.blanks = $.trim($td.html()) != '' && ($td.html() != $prev_td.html()) ? false : types.blanks;
-          types.checkbox = !$td.children().is(':checkbox') ? false : types.checkbox;
+            var $td = $(v).children().eq($th.index());
+            var value = $td.children().is('input:text') ? $td.find('input:text').val().toLowerCase() : $td.text().toLowerCase();
+            $td.attr('data-sortr-value', value);
+            $prev_td = !$prev_td ? $td : $prev_td;
 
-          types.identical = $td.html() != $prev_td.html() ? false : types.identical;
+            types.numeric = !isNumber($td, value) ? false : types.numeric;
+            types.date = isNaN(Date.parse(value)) ? false : types.date;
+            types.bool = !isInArray(value, opts.bool_true) && !isInArray(value, opts.bool_false) ? false : types.bool;
+            types.blanks = $.trim($td.html()) != '' && ($td.html() != $prev_td.html()) ? false : types.blanks;
+            types.checkbox = !$td.children().is(':checkbox') ? false : types.checkbox;
 
-        });
-        var method = 'alpha';
-        method = types.numeric === false ? method : 'numeric';
-        method = types.date === false ? method : 'date';
-        method = types.bool === false ? method : 'bool';
-        method = types.blanks === false ? method : 'blanks';
-        method = types.checkbox === false ? method : 'checkbox';
-        ((types.identical === false) || (method === 'checkbox')) ? $th.attr('data-sortr-method', method) : $th.attr('data-sortr-method', '');
+            types.identical = $td.html() != $prev_td.html() ? false : types.identical;
+
+          });
+          var method = 'alpha';
+          method = types.numeric === false ? method : 'numeric';
+          method = types.date === false ? method : 'date';
+          method = types.bool === false ? method : 'bool';
+          method = types.blanks === false ? method : 'blanks';
+          method = types.checkbox === false ? method : 'checkbox';
+          ((types.identical === false) || (method === 'checkbox')) ? $th.attr('data-sortr-method', method) : false;
+        }
       });
     }
 
