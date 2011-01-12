@@ -21,6 +21,7 @@
       ],
       ignore : '',
       by: '',
+      move_classes: false,
       onStart: function() {},
       onComplete: function(){}
     };
@@ -126,7 +127,7 @@
     function autoSort($th) {
       var index = $th.index();
       var $rows = $th.parents('table:first').find('tbody tr');
-      var rowArray = $rows.removeClass().detach().toArray();
+      var rowArray = $rows.detach().toArray();
       if(isRowActive($th)) {
         return reverseRows($th, rowArray);
       }
@@ -164,9 +165,11 @@
     }
 
     function cacheClasses($table) {
+      if(opts.move_classes) { return false; }
       var class_array = [];
       $table.find('tbody tr').each(function() {
         class_array.push($(this).attr('class'));
+        $(this).removeClass();
       });
       return class_array;
     }
@@ -214,8 +217,10 @@
         var $th = $(this);
         if($th.attr('data-sortr-method')) {
           opts.onStart.apply($th);
-          var sorted_row_array = autoSort($th);
-          var $sorted_rows = restoreClasses($(sorted_row_array), class_cache);
+          var $sorted_rows = $(autoSort($th));
+          if(class_cache) {
+            $sorted_rows = restoreClasses($sorted_rows, class_cache);
+          }
           $sorted_rows.appendTo($table.find('tbody'));
           opts.onComplete.apply($th);
         }

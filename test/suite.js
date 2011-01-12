@@ -66,15 +66,19 @@ $(function() {
     var sorted_checkboxes = ['<input type="checkbox" checked="checked">','<input type="checkbox" checked="checked">','<input type="checkbox" checked="checked">','<input type="checkbox">','<input type="checkbox">'];
     var blanks = ['X', '', 'X', '', 'X'];
     var sorted_blanks = ['X', 'X', 'X', '', ''];
+    var not_blanks = ['X', '', 'Z', '', 'Y'];
+    var sorted_not_blanks = ['X', 'Y', 'Z', '', ''];
     var $th_yesno = addColumn('yesno', yesno);
     var $th_truefalse = addColumn('truefalse', truefalse);
     var $th_checkboxes = addColumn('checkboxes', checkboxes);
     var $th_blanks = addColumn('blanks', blanks);
+    var $th_not_blanks = addColumn('not_blanks', not_blanks);
     $t.sortr();
     checkColumnType($th_yesno, 'bool');
     checkColumnType($th_truefalse, 'bool');
     checkColumnType($th_checkboxes, 'checkbox');
     checkColumnType($th_blanks, 'blanks');
+    checkColumnType($th_not_blanks, 'alpha');
     $th_yesno.click();
     same(getColumnContents('yesno'), sorted_yesno, 'sorts "yes" and "no" properly');
     equals($th_yesno.attr('class'), 'sortr-desc', 'applies sortr-desc class');
@@ -206,6 +210,22 @@ $(function() {
     $th.click();
     equals($t.find('tbody tr:eq(0)').attr('class'), 'alt', '1st row has class of "alt"');
     equals($t.find('tbody tr:eq(1)').attr('class'), '', '2nd row has no class');
+  });
+
+  test("it moves classes with the rows if move_classes is set to true", function() {
+    var $t = getTable();
+    var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
+    var sorted_names = ['al', 'bob', 'fred', 'jim', 'mark', 'tom'];
+    var $th = addColumn('name', names);
+    $t.find('tbody tr:eq(0)').addClass('foo bar');
+    $t.find('tbody tr:eq(4)').addClass('baz');
+    $t.sortr({
+      move_classes: true
+    });
+    $th.click();
+    equals($t.find('tbody tr:eq(0)').attr('class'), '', '1st row has no class');
+    equals($t.find('tbody tr:eq(1)').attr('class'), 'foo bar', '2nd row has class of "foo bar"');
+    equals($t.find('tbody tr:eq(5)').attr('class'), 'baz', '3rd row has class of "baz"');
   });
 
   test("it properly handles callback function", function() {
