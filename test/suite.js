@@ -246,7 +246,12 @@ $(function() {
     $th.click();
     equals($t.find('tbody tr:eq(0)').attr('class'), '', '1st row has no class');
     equals($t.find('tbody tr:eq(1)').attr('class'), 'foo bar', '2nd row has class of "foo bar"');
-    equals($t.find('tbody tr:eq(5)').attr('class'), 'baz', '3rd row has class of "baz"');
+    equals($t.find('tbody tr:eq(5)').attr('class'), 'baz', '5th row has class of "baz"');
+    var $tr = $('<tr><td>earl</td></tr>').addClass('blarg').appendTo($t.find('tbody'));
+    $t.sortr_refresh();
+    $th.click();
+    equals($t.find('tbody tr:eq(6)').attr('class'), 'baz', 'Class moves to new row with added row after refresh');
+    equals($t.find('tbody tr:eq(2)').attr('class'), 'blarg', 'Class moves from old row with added row after refresh');
   });
 
   test("it properly handles callback function", function() {
