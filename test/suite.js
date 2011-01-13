@@ -226,6 +226,11 @@ $(function() {
     $th.click();
     equals($t.find('tbody tr:eq(0)').attr('class'), 'alt', '1st row has class of "alt"');
     equals($t.find('tbody tr:eq(1)').attr('class'), '', '2nd row has no class');
+    var $tr = $('<tr><td>earl</td></tr>').addClass('blarg').appendTo($t.find('tbody'));
+    $t.sortr_refresh();
+    $th.click();
+    equals($t.find('tbody tr:eq(2)').attr('class'), 'alt', 'Class does not move to new row with added row after refresh');
+    equals($t.find('tbody tr:eq(6)').attr('class'), 'blarg', 'Class does not move from old row with added row after refresh');
   });
 
   test("it moves classes with the rows if move_classes is set to true", function() {

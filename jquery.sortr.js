@@ -95,24 +95,24 @@
 
     function autoSort($th) {
       var index = $th.index();
-      var $rows = $th.parents('table:first').find('tbody tr');
+      var $table = $th.parents('table:eq(0)');
+      var $rows = $table.find('tbody tr');
       var rowArray = $rows.detach().toArray();
       if(isRowActive($th)) {
-        return reverseRows($th, rowArray);
+        return restoreClasses(reverseRows($th, rowArray), $table);
       }
       var method = $th.attr('data-' + opts.class_prefix + 'method');
       if(method) {
         setPrimary($th, opts.default_sort[method]);
         var sorted = get_sorted[method](index, rowArray);
         (opts.default_sort[method] != defaults.default_sort[method]) ? sorted.reverse() : false;
-        return sorted;
+        return restoreClasses(sorted, $table);
       }
-      return rowArray;
+      return $rows;
     }
 
     return this.each(function() {
       var $table = $(this);
-      var class_cache = cacheClasses($table);
       var $th = $table.find('thead th');
       var $default_sort = $th.filter('.' + opts.class_prefix + 'default');
       $table.sortr_autodetect();
@@ -120,10 +120,7 @@
         var $th = $(this);
         if($th.attr('data-sortr-method')) {
           opts.onStart.apply($th);
-          var $sorted_rows = $(autoSort($th));
-          if(class_cache) {
-            $sorted_rows = restoreClasses($sorted_rows, class_cache);
-          }
+          var $sorted_rows = autoSort($th);
           $sorted_rows.appendTo($table.find('tbody'));
           opts.onComplete.apply($th);
         }
@@ -150,6 +147,7 @@
   $.fn.sortr_autodetect = function() {
     var $table = $(this);
     var $rows = $table.find('tbody tr');
+    cacheClasses($table);
     $table.find('thead th').each(function() {
       var $th = $(this);
       var types = {};
@@ -214,13 +212,17 @@
       class_array.push($(this).attr('class'));
       $(this).removeClass();
     });
-    return class_array;
+    return $table.data('sortr-class-array', class_array);
   }
 
-  function restoreClasses($rows, class_cache) {
-    $rows.each(function(i) {
-      $(this).addClass(class_cache[i]);
-    });
+  function restoreClasses(row_array, $table) {
+    var $rows = $(row_array);
+    var class_cache = $table.data('sortr-class-array');
+    if(class_cache) {
+      $rows.each(function(i) {
+        $(this).addClass(class_cache[i]);
+      });
+    }
     return $rows;
   }
 
