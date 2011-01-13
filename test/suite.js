@@ -200,6 +200,22 @@ $(function() {
     equals($t.find('thead th#yesno').attr('data-sortr-method'), 'bool', 'remembers default boolean specifications');
   });
 
+  test("sortr.refresh works properly", function() {
+    var $t = getTable();
+    var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
+    var sorted_names = ['al', 'bob', 'fred', 'jim', 'mark', 'tom'];
+    var sorted_names_2 = ['al', 'bob', 'earl', 'fred', 'jim', 'mark', 'tom'];
+    var $th = addColumn('name', names);
+    $t.sortr();
+    $th.click();
+    same(getColumnContents('names'), sorted_names, 'sorts alpha column properly');
+    var $tr = $('<tr><td>earl</td></tr>').appendTo($t.find('tbody'));
+    $t.sortr_refresh();
+    same($tr.children().attr('data-sortr-value'), 'earl', 'Applies data-sortr-method to newly added object');
+    $th.click();
+    same(getColumnContents('names'), sorted_names_2, 'sorts additional item in properly');
+  });
+
   test("it properly maintains initial row classes", function() {
     var $t = getTable();
     var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
