@@ -166,7 +166,7 @@
           types.date = isNaN(Date.parse(value)) ? false : types.date;
           types.bool = !isInArray(value, opts.bool_true) && !isInArray(value, opts.bool_false) ? false : types.bool;
           types.blanks = $.trim($td.html()) != '' && ($td.html() != $prev_td.html()) ? false : types.blanks;
-          types.checkbox = !$td.children().is(':checkbox') ? false : types.checkbox;
+          types.checkbox = !$th.children().is(':checkbox') ? false : types.checkbox;
 
           types.identical = $td.html() != $prev_td.html() ? false : types.identical;
 

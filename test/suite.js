@@ -73,6 +73,7 @@ $(function() {
     var $th_checkboxes = addColumn('checkboxes', checkboxes);
     var $th_blanks = addColumn('blanks', blanks);
     var $th_not_blanks = addColumn('not_blanks', not_blanks);
+    $th_checkboxes.html('<input type="checkbox">');
     $t.sortr();
     checkColumnType($th_yesno, 'bool');
     checkColumnType($th_truefalse, 'bool');
