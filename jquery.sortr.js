@@ -1,7 +1,6 @@
 (function($) {
 
   var opts;
-  var settings;
 
   $.fn.sortr = function(options) {
 
@@ -29,12 +28,6 @@
       onStart: function() {},
       onComplete: function(){}
     };
-    settings = $.extend({}, defaults, true);
-    opts = $.extend(settings, options, true);
-    if(options) {
-      $.isArray(options.bool_true) ? opts.bool_true = opts.bool_true.concat(defaults.bool_true) : false;
-      $.isArray(options.bool_false) ? opts.bool_false = opts.bool_false.concat(defaults.bool_false) : false;
-    }
 
     var get_sorted = {
       alpha: function(index, rows) {
@@ -93,7 +86,7 @@
       }
     };
 
-    function autoSort($th) {
+    function autosort($th) {
       var index = $th.index();
       var $table = $th.parents('table:eq(0)');
       var $rows = $table.find('tbody tr');
@@ -114,13 +107,21 @@
     return this.each(function() {
       var $table = $(this);
       var $th = $table.find('thead th');
+      var settings = $.extend({}, defaults, true);
+      opts = $.extend(settings, options, true);
+      if(options) {
+        $.isArray(options.bool_true) ? opts.bool_true = opts.bool_true.concat(defaults.bool_true) : false;
+        $.isArray(options.bool_false) ? opts.bool_false = opts.bool_false.concat(defaults.bool_false) : false;
+      }
+      $table.data('sortr-opts', opts);
       var $default_sort = $th.filter('.' + opts.class_prefix + 'default');
       $table.sortr_autodetect();
       $th.not(opts.ignore).click(function() {
         var $th = $(this);
+        opts = $th.parents('table:eq(0)').data('sortr-opts');
         if($th.attr('data-sortr-method')) {
           opts.onStart.apply($th);
-          var $sorted_rows = autoSort($th);
+          var $sorted_rows = autosort($th);
           $sorted_rows.appendTo($table.find('tbody'));
           opts.onComplete.apply($th);
         }
