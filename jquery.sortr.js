@@ -32,7 +32,7 @@
         return rows.sort(function(a, b) {
           var i = $(a).children().eq(index).attr('data-sortr-value').toLowerCase();
           var j = $(b).children().eq(index).attr('data-sortr-value').toLowerCase();
-          if(i == j) { return 0; }
+          if (i == j) { return 0; }
           return i < j ? -1 : 1;
         });
       },
@@ -40,7 +40,7 @@
         return rows.sort(function(a, b) {
           var i = parseFloat($(a).children().eq(index).attr('data-sortr-value'));
           var j = parseFloat($(b).children().eq(index).attr('data-sortr-value'));
-          if(i == j) { return 0; }
+          if (i == j) { return 0; }
           return i > j ? -1 : 1;
         });
       },
@@ -48,7 +48,7 @@
         return rows.sort(function(a, b) {
           var i = Date.parse($(b).children().eq(index).attr('data-sortr-value'));
           var j = Date.parse($(a).children().eq(index).attr('data-sortr-value'));
-          if(i == j) { return 0; }
+          if (i == j) { return 0; }
           return i < j ? -1 : 1;
         });
       },
@@ -91,11 +91,11 @@
       var $table = $th.parents('table:eq(0)');
       var $rows = $table.find('tbody tr');
       var rowArray = $rows.detach().toArray();
-      if(isRowActive.call(opts, $th)) {
+      if (isRowActive.call(opts, $th)) {
         return restoreClasses.call(opts, reverseRows.call(opts, $th, rowArray), $table);
       }
       var method = $th.attr('data-' + opts.class_prefix + 'method');
-      if(method) {
+      if (method) {
         setPrimary.call(opts, $th, method);
         var sorted = get_sorted[method].call(opts, index, rowArray);
         (opts.default_sort[method] != defaults.default_sort[method]) ? sorted.reverse() : false;
@@ -108,7 +108,7 @@
       var $table = $(this);
       var $th = $table.find('thead th');
       var opts = $.extend({}, defaults, options, true);
-      if(options) {
+      if (options) {
         $.isArray(options.bool_true) ? opts.bool_true = opts.bool_true.concat(defaults.bool_true) : false;
         $.isArray(options.bool_false) ? opts.bool_false = opts.bool_false.concat(defaults.bool_false) : false;
       }
@@ -117,16 +117,16 @@
       $table.sortr_autodetect();
       $th.not(opts.ignore).click(function() {
         var $th = $(this);
-        if($th.attr('data-sortr-method')) {
+        if ($th.attr('data-sortr-method')) {
           opts.onStart.apply($th);
           var $sorted_rows = autosort.call(opts, $th);
           $sorted_rows.appendTo($table.find('tbody'));
           opts.onComplete.apply($th);
         }
       });
-      if($default_sort.length) {
+      if ($default_sort.length) {
         $default_sort.first().click();
-      } else if(opts.by) {
+      } else if (opts.by) {
         $th.filter(opts.by).first().trigger('click');
       }
     });
@@ -192,7 +192,7 @@
     var opts = this;
     var asc = opts.class_prefix + 'asc';
     var desc = opts.class_prefix + 'desc';
-    if($th.hasClass(asc)) {
+    if ($th.hasClass(asc)) {
       $th.removeClass(asc);
       $th.addClass(desc);
     } else {
@@ -211,7 +211,7 @@
 
   function cacheClasses($table) {
     var opts = this;
-    if(opts.move_classes) { return false; }
+    if (opts.move_classes) { return false; }
     var class_array = [];
     $table.find('tbody tr').each(function() {
       class_array.push($(this).attr('class'));
@@ -224,7 +224,7 @@
     var opts = this;
     var $rows = $(row_array);
     var class_cache = $table.data('sortr-class-array');
-    if(class_cache) {
+    if (class_cache) {
       $rows.each(function(i) {
         $(this).addClass(class_cache[i]);
       });
@@ -234,12 +234,12 @@
 
   function isNumber($td, n) {
     var percentage;
-    if(typeof n != 'string') { return false; }
-    if(n.charAt(n.length-1) === '%') {
+    if (typeof n != 'string') { return false; }
+    if (n.charAt(n.length-1) === '%') {
       percentage = true;
     }
     var numeric_value = n.replace(/[$%º¤¥£¢]/, '');
-    if(!isNaN(parseFloat(numeric_value)) && isFinite(numeric_value)) {
+    if (!isNaN(parseFloat(numeric_value)) && isFinite(numeric_value)) {
       percentage ? numeric_value = numeric_value / 100 : false;
       $td.attr('data-sortr-value', numeric_value);
       return true;
