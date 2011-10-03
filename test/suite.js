@@ -198,7 +198,7 @@ $(function() {
     checkColumnType($th_values, 'bool');
     $th_values.click();
     same(getColumnContents('values'), sorted_values, 'sorts custom boolean column properly');
-    equals($t.find('thead th#yesno').attr('data-sortr-method'), 'bool', 'remembers default boolean specifications');
+    equals($t.find('thead th#yesno').data('sortr-method'), 'bool', 'remembers default boolean specifications');
   });
 
   test("sortr.refresh works properly", function() {
@@ -212,7 +212,7 @@ $(function() {
     same(getColumnContents('names'), sorted_names, 'sorts alpha column properly');
     var $tr = $('<tr><td>earl</td></tr>').appendTo($t.find('tbody'));
     $t.sortr_refresh();
-    same($tr.children().attr('data-sortr-value'), 'earl', 'Applies data-sortr-method to newly added object');
+    same($tr.children().data('sortr-value'), 'earl', 'Applies data-sortr-method to newly added object');
     $th.click();
     same(getColumnContents('names'), sorted_names_2, 'sorts additional item in properly');
   });
@@ -225,10 +225,10 @@ $(function() {
     $t.find('tbody tr:even').addClass('alt');
     $t.sortr();
     $th.click();
-    equals($t.find('tbody tr:eq(0)').attr('class'), 'alt', '1st row has class of "alt"');
-    equals($t.find('tbody tr:eq(1)').attr('class'), '', '2nd row has no class');
-    equals($t.find('tbody tr:eq(3)').attr('class'), '', '4th row has no class');
-    equals($t.find('tbody tr:eq(4)').attr('class'), 'alt', '5th row has class of "alt"');
+    ok($t.find('tbody tr:eq(0)').hasClass('alt'), '1st row has class of "alt"');
+    ok(!$t.find('tbody tr:eq(1)').hasClass('alt'), '2nd row has no class');
+    ok(!$t.find('tbody tr:eq(3)').hasClass('alt'), '4th row has no class');
+    ok($t.find('tbody tr:eq(4)').hasClass('alt'), '5th row has class of "alt"');
     var $tr = $('<tr><td>earl</td></tr>').addClass('blarg').appendTo($t.find('tbody'));
     $t.sortr_refresh();
     $th.click();
@@ -247,7 +247,7 @@ $(function() {
       move_classes: true
     });
     $th.click();
-    equals($t.find('tbody tr:eq(0)').attr('class'), '', '1st row has no class');
+    equals($t.find('tbody tr:eq(0)').attr('class'), undefined, '1st row has no class');
     equals($t.find('tbody tr:eq(1)').attr('class'), 'foo bar', '2nd row has class of "foo bar"');
     equals($t.find('tbody tr:eq(5)').attr('class'), 'baz', '5th row has class of "baz"');
     var $tr = $('<tr><td>earl</td></tr>').addClass('blarg').appendTo($t.find('tbody'));
@@ -279,7 +279,7 @@ $(function() {
     var $t = getTable();
     var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
     var ages = [28, 13, 24, 35, 33, 23];
-    var sorted_names = ['jim', 'al', 'fred', 'bob', 'tom', 'mark'];
+    var sorted_names = ['mark', 'tom', 'bob', 'fred', 'al', 'jim'];
     var $th = addColumn('name', names);
     $t.find("tbody tr").each(function(i) {
       $(this).find("td:eq(0)").data("age", ages[i]);
@@ -289,6 +289,7 @@ $(function() {
         "#name": "age"
       }
     });
+    checkColumnType($th, "numeric");
     $th.click();
     same(getColumnContents('name'), sorted_names, 'sorts names by data attribute');
   });
@@ -322,7 +323,7 @@ $(function() {
   }
 
   function checkColumnType($th, type) {
-    equals($th.attr('data-sortr-method'), type, 'detects column as "' + type + '"');
+    equals($th.data('sortr-method'), type, 'detects column as "' + type + '"');
   }
 
   function getTable() {

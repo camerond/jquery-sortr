@@ -31,24 +31,24 @@
     var get_sorted = {
       alpha: function(index, rows) {
         return rows.sort(function(a, b) {
-          var i = $(a).children().eq(index).attr('data-sortr-value').toLowerCase();
-          var j = $(b).children().eq(index).attr('data-sortr-value').toLowerCase();
+          var i = $(a).children().eq(index).data('sortr-value').toLowerCase();
+          var j = $(b).children().eq(index).data('sortr-value').toLowerCase();
           if (i == j) { return 0; }
           return i < j ? -1 : 1;
         });
       },
       numeric: function(index, rows) {
         return rows.sort(function(a, b) {
-          var i = parseFloat($(a).children().eq(index).attr('data-sortr-value'));
-          var j = parseFloat($(b).children().eq(index).attr('data-sortr-value'));
+          var i = parseFloat($(a).children().eq(index).data('sortr-value'));
+          var j = parseFloat($(b).children().eq(index).data('sortr-value'));
           if (i == j) { return 0; }
           return i > j ? -1 : 1;
         });
       },
       date: function(index, rows) {
         return rows.sort(function(a, b) {
-          var i = Date.parse($(b).children().eq(index).attr('data-sortr-value'));
-          var j = Date.parse($(a).children().eq(index).attr('data-sortr-value'));
+          var i = Date.parse($(b).children().eq(index).data('sortr-value'));
+          var j = Date.parse($(a).children().eq(index).data('sortr-value'));
           if (i == j) { return 0; }
           return i < j ? -1 : 1;
         });
@@ -95,7 +95,7 @@
       if (isRowActive.call(opts, $th)) {
         return restoreClasses.call(opts, reverseRows.call(opts, $th, rowArray), $table);
       }
-      var method = $th.attr('data-sortr-method');
+      var method = $th.data('sortr-method');
       if (method) {
         setPrimary.call(opts, $th, method);
         var sorted = get_sorted[method].call(opts, index, rowArray);
@@ -118,7 +118,7 @@
       $table.sortr_autodetect();
       $th.not(opts.ignore).click(function() {
         var $th = $(this);
-        if ($th.attr('data-sortr-method')) {
+        if ($th.data('sortr-method')) {
           opts.onStart.apply($th);
           var $sorted_rows = autosort.call(opts, $th);
           $sorted_rows.appendTo($table.find('tbody'));
@@ -134,11 +134,11 @@
 
   };
 
-  $.fn.sortr_refresh = function($table) {
+  $.fn.sortr_refresh = function() {
     return this.each(function() {
       var $table = $(this);
       var opts = $table.data('sortr-opts');
-      $table.find('td').attr('data-sortr-value', '');
+      $table.find('td').data('sortr-value', '');
       $table.find('th').removeClass(opts.class_prefix + 'asc');;
       $table.find('th').removeClass(opts.class_prefix + 'desc');;
       $table.sortr_autodetect();
@@ -146,50 +146,51 @@
   };
 
   $.fn.sortr_autodetect = function() {
-    var $table = $(this);
-    var opts = $table.data('sortr-opts');
-    var $rows = $table.find('tbody tr');
-    cacheClasses.call(opts, $table);
-    $.each(opts.data, function(k, v) {
-      $table.find("th").filter(k).attr("data-sortr-sortby", v);
+    return this.each(function() {
+      var $table = $(this);
+      var opts = $table.data('sortr-opts');
+      var $rows = $table.find('tbody tr');
+      cacheClasses.call(opts, $table);
+      $.each(opts.data, function(k, v) {
+        $table.find("th").filter(k).data("sortr-sortby", v);
+      });
+      $table.find('thead th').each(function() {
+        var $th = $(this);
+        var types = {};
+        var $prev_td;
+        $th.data('sortr-method', '');
+        if (!$th.is(opts.ignore)) {
+          $rows.each(function(i, v) {
+
+            var $td = $(v).children().eq($th.index());
+            var value = $td.text().toLowerCase();
+            if ($th.data("sortr-sortby")) {
+              value = $td.data($th.data("sortr-sortby")) + '';
+            } else if ($td.children().is('input:text')) {
+              value = $td.find('input:text').val().toLowerCase();
+            }
+            $td.data('sortr-value', value);
+            $prev_td = !$prev_td ? $td : $prev_td;
+
+            types.numeric = !isNumber.call(opts, $td, value) ? false : types.numeric;
+            types.date = isNaN(Date.parse(value)) ? false : types.date;
+            types.bool = !isInArray(value, opts.bool_true) && !isInArray(value, opts.bool_false) ? false : types.bool;
+            types.blanks = $.trim($td.html()) != '' && ($td.html() != $prev_td.html()) ? false : types.blanks;
+            types.checkbox = !$th.children().is(':checkbox') ? false : types.checkbox;
+
+            types.identical = $td.html() != $prev_td.html() ? false : types.identical;
+
+          });
+          var method = 'alpha';
+          method = types.numeric === false ? method : 'numeric';
+          method = types.date === false ? method : 'date';
+          method = types.bool === false ? method : 'bool';
+          method = types.blanks === false ? method : 'blanks';
+          method = types.checkbox === false ? method : 'checkbox';
+          ((types.identical === false) || (method === 'checkbox')) ? $th.data('sortr-method', method) : false;
+        }
+      });
     });
-    $table.find('thead th').each(function() {
-      var $th = $(this);
-      var types = {};
-      var $prev_td;
-      $th.attr('data-sortr-method', '');
-      if (!$th.is(opts.ignore)) {
-        $.each($rows, function(i, v) {
-
-          var $td = $(v).children().eq($th.index());
-          var value = $td.text().toLowerCase();
-          if ($th.attr("data-sortr-sortby")) {
-            value = $td.data($th.attr("data-sortr-sortby"));
-          } else if ($td.children().is('input:text')) {
-            value = $td.find('input:text').val().toLowerCase();
-          }
-          $td.attr('data-sortr-value', value);
-          $prev_td = !$prev_td ? $td : $prev_td;
-
-          types.numeric = !isNumber.call(opts, $td, value) ? false : types.numeric;
-          types.date = isNaN(Date.parse(value)) ? false : types.date;
-          types.bool = !isInArray(value, opts.bool_true) && !isInArray(value, opts.bool_false) ? false : types.bool;
-          types.blanks = $.trim($td.html()) != '' && ($td.html() != $prev_td.html()) ? false : types.blanks;
-          types.checkbox = !$th.children().is(':checkbox') ? false : types.checkbox;
-
-          types.identical = $td.html() != $prev_td.html() ? false : types.identical;
-
-        });
-        var method = 'alpha';
-        method = types.numeric === false ? method : 'numeric';
-        method = types.date === false ? method : 'date';
-        method = types.bool === false ? method : 'bool';
-        method = types.blanks === false ? method : 'blanks';
-        method = types.checkbox === false ? method : 'checkbox';
-        ((types.identical === false) || (method === 'checkbox')) ? $th.attr('data-sortr-method', method) : false;
-      }
-    });
-    return $table;
   };
 
   function isRowActive($th) {
@@ -250,7 +251,7 @@
     var numeric_value = n.replace(/[$%º¤¥£¢]/, '');
     if (!isNaN(parseFloat(numeric_value)) && isFinite(numeric_value)) {
       percentage ? numeric_value = numeric_value / 100 : false;
-      $td.attr('data-sortr-value', numeric_value);
+      $td.data('sortr-value', numeric_value);
       return true;
     } else {
       return false;
