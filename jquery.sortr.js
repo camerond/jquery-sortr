@@ -1,4 +1,4 @@
-(function($) {
+;(function($) {
 
   $.fn.sortr = function(options) {
 
@@ -116,7 +116,7 @@
       $table.data('sortr-opts', opts);
       var $default_sort = $th.filter('.' + opts.class_prefix + 'default');
       $table.sortr_autodetect();
-      $th.not(opts.ignore).click(function() {
+      $th.not(opts.ignore).bind("click.sortr", function() {
         var $th = $(this);
         if ($th.data('sortr-method')) {
           opts.onStart.apply($th);
