@@ -227,6 +227,8 @@ $(function() {
     $th.click();
     equals($t.find('tbody tr:eq(0)').attr('class'), 'alt', '1st row has class of "alt"');
     equals($t.find('tbody tr:eq(1)').attr('class'), '', '2nd row has no class');
+    equals($t.find('tbody tr:eq(3)').attr('class'), '', '4th row has no class');
+    equals($t.find('tbody tr:eq(4)').attr('class'), 'alt', '5th row has class of "alt"');
     var $tr = $('<tr><td>earl</td></tr>').addClass('blarg').appendTo($t.find('tbody'));
     $t.sortr_refresh();
     $th.click();
