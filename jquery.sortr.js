@@ -1,7 +1,5 @@
 (function($) {
 
-  var opts;
-
   $.fn.sortr = function(options) {
 
     var defaults = {
@@ -75,6 +73,7 @@
         });
       },
       bool: function(index, rows) {
+        var opts = this;
         return rows.sort(function(a, b) {
           var value = 0;
           var i = $(a).children().eq(index).text().toLowerCase();
@@ -87,19 +86,20 @@
     };
 
     function autosort($th) {
+      var opts = this;
       var index = $th.index();
       var $table = $th.parents('table:eq(0)');
       var $rows = $table.find('tbody tr');
       var rowArray = $rows.detach().toArray();
-      if(isRowActive($th)) {
-        return restoreClasses(reverseRows($th, rowArray), $table);
+      if(isRowActive.call(opts, $th)) {
+        return restoreClasses.call(opts, reverseRows.call(opts, $th, rowArray), $table);
       }
       var method = $th.attr('data-' + opts.class_prefix + 'method');
       if(method) {
-        setPrimary($th, opts.default_sort[method]);
-        var sorted = get_sorted[method](index, rowArray);
+        setPrimary.call(opts, $th, method);
+        var sorted = get_sorted[method].call(opts, index, rowArray);
         (opts.default_sort[method] != defaults.default_sort[method]) ? sorted.reverse() : false;
-        return restoreClasses(sorted, $table);
+        return restoreClasses.call(opts, sorted, $table);
       }
       return $rows;
     }
@@ -107,8 +107,7 @@
     return this.each(function() {
       var $table = $(this);
       var $th = $table.find('thead th');
-      var settings = $.extend({}, defaults, true);
-      opts = $.extend(settings, options, true);
+      var opts = $.extend({}, defaults, options, true);
       if(options) {
         $.isArray(options.bool_true) ? opts.bool_true = opts.bool_true.concat(defaults.bool_true) : false;
         $.isArray(options.bool_false) ? opts.bool_false = opts.bool_false.concat(defaults.bool_false) : false;
@@ -118,10 +117,9 @@
       $table.sortr_autodetect();
       $th.not(opts.ignore).click(function() {
         var $th = $(this);
-        opts = $th.parents('table:eq(0)').data('sortr-opts');
         if($th.attr('data-sortr-method')) {
           opts.onStart.apply($th);
-          var $sorted_rows = autosort($th);
+          var $sorted_rows = autosort.call(opts, $th);
           $sorted_rows.appendTo($table.find('tbody'));
           opts.onComplete.apply($th);
         }
@@ -138,6 +136,7 @@
   $.fn.sortr_refresh = function($table) {
     return this.each(function() {
       var $table = $(this);
+      var opts = $table.data('sortr-opts');
       $table.find('td').attr('data-sortr-value', '');
       $table.find('th').removeClass(opts.class_prefix + 'asc');;
       $table.find('th').removeClass(opts.class_prefix + 'desc');;
@@ -147,8 +146,9 @@
 
   $.fn.sortr_autodetect = function() {
     var $table = $(this);
+    var opts = $table.data('sortr-opts');
     var $rows = $table.find('tbody tr');
-    cacheClasses($table);
+    cacheClasses.call(opts, $table);
     $table.find('thead th').each(function() {
       var $th = $(this);
       var types = {};
@@ -162,7 +162,7 @@
           $td.attr('data-sortr-value', value);
           $prev_td = !$prev_td ? $td : $prev_td;
 
-          types.numeric = !isNumber($td, value) ? false : types.numeric;
+          types.numeric = !isNumber.call(opts, $td, value) ? false : types.numeric;
           types.date = isNaN(Date.parse(value)) ? false : types.date;
           types.bool = !isInArray(value, opts.bool_true) && !isInArray(value, opts.bool_false) ? false : types.bool;
           types.blanks = $.trim($td.html()) != '' && ($td.html() != $prev_td.html()) ? false : types.blanks;
@@ -184,10 +184,12 @@
   };
 
   function isRowActive($th) {
+    var opts = this;
     return ($th.hasClass(opts.class_prefix + 'asc') || $th.hasClass(opts.class_prefix + 'desc')) ? true : false;
   }
 
   function reverseRows($th, rows) {
+    var opts = this;
     var asc = opts.class_prefix + 'asc';
     var desc = opts.class_prefix + 'desc';
     if($th.hasClass(asc)) {
@@ -200,13 +202,15 @@
     return rows.reverse();
   }
 
-  function setPrimary($th, suffix) {
+  function setPrimary($th, method) {
+    var opts = this;
     $th.siblings().removeClass(opts.class_prefix + 'desc');
     $th.siblings().removeClass(opts.class_prefix + 'asc');
-    $th.addClass(opts.class_prefix + suffix);
+    $th.addClass(opts.class_prefix + opts.default_sort[method]);
   }
 
   function cacheClasses($table) {
+    var opts = this;
     if(opts.move_classes) { return false; }
     var class_array = [];
     $table.find('tbody tr').each(function() {
@@ -217,6 +221,7 @@
   }
 
   function restoreClasses(row_array, $table) {
+    var opts = this;
     var $rows = $(row_array);
     var class_cache = $table.data('sortr-class-array');
     if(class_cache) {
@@ -243,8 +248,7 @@
     }
   }
 
-  function isInArray(v, a)
-  {
+  function isInArray(v, a) {
     var o = {};
     for(var i=0;i<a.length;i++)
     {
