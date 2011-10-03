@@ -275,6 +275,24 @@ $(function() {
     same(getColumnContents('name'), sorted_names, 'sorts names with locked first row properly');
   });
 
+  test("it allows for sorting by data attributes instead of content", function() {
+    var $t = getTable();
+    var names = ['bob', 'jim', 'fred', 'mark', 'tom', 'al'];
+    var ages = [28, 13, 24, 35, 33, 23];
+    var sorted_names = ['jim', 'al', 'fred', 'bob', 'tom', 'mark'];
+    var $th = addColumn('name', names);
+    $t.find("tbody tr").each(function(i) {
+      $(this).find("td:eq(0)").data("age", ages[i]);
+    });
+    $t.sortr({
+      data: {
+        "#name": "age"
+      }
+    });
+    $th.click();
+    same(getColumnContents('name'), sorted_names, 'sorts names by data attribute');
+  });
+
   function addColumn(name, values) {
     var $t = getTable();
     var $th = $('<th>').text(name);

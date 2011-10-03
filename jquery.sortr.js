@@ -23,6 +23,7 @@
       ignore : '',
       by: '',
       move_classes: false,
+      data: {},
       onStart: function() {},
       onComplete: function(){}
     };
@@ -94,7 +95,7 @@
       if (isRowActive.call(opts, $th)) {
         return restoreClasses.call(opts, reverseRows.call(opts, $th, rowArray), $table);
       }
-      var method = $th.attr('data-' + opts.class_prefix + 'method');
+      var method = $th.attr('data-sortr-method');
       if (method) {
         setPrimary.call(opts, $th, method);
         var sorted = get_sorted[method].call(opts, index, rowArray);
@@ -149,6 +150,9 @@
     var opts = $table.data('sortr-opts');
     var $rows = $table.find('tbody tr');
     cacheClasses.call(opts, $table);
+    $.each(opts.data, function(k, v) {
+      $table.find("th").filter(k).attr("data-sortr-sortby", v);
+    });
     $table.find('thead th').each(function() {
       var $th = $(this);
       var types = {};
@@ -158,7 +162,12 @@
         $.each($rows, function(i, v) {
 
           var $td = $(v).children().eq($th.index());
-          var value = $td.children().is('input:text') ? $td.find('input:text').val().toLowerCase() : $td.text().toLowerCase();
+          var value = $td.text().toLowerCase();
+          if ($th.attr("data-sortr-sortby")) {
+            value = $td.data($th.attr("data-sortr-sortby"));
+          } else if ($td.children().is('input:text')) {
+            value = $td.find('input:text').val().toLowerCase();
+          }
           $td.attr('data-sortr-value', value);
           $prev_td = !$prev_td ? $td : $prev_td;
 
