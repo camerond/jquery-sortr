@@ -38,7 +38,7 @@
         if method is 'numeric' then tp.sanitizeAllNumbers($rows, $th.index())
         $th.data('sortr-method', method)
     sanitizeNumber: (val) ->
-      val.replace(/[$%º¤¥£¢]/, '')
+      val.replace(/[$%º¤¥£¢\,]/, '')
     sanitizeAllNumbers: ($rows, idx) ->
       tp = @
       $rows.each ->
