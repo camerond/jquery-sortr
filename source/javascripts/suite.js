@@ -5,7 +5,7 @@ $(function() {
     same($t.sortr().hide().show(), $("#sortr-test"));
   });
 
-  test("it defaults to sorting a row alphabetically when th is clicked", function() {
+  test("it defaults to sorting a row alphabetically & ascending when th is clicked", function() {
     var $t = getTable();
     var names = ['bob smith', 'jim smith', 'fred bob', 'marky mark', 'tom thompson', 'alvenue fredrique'];
     var sorted_names = ['alvenue fredrique', 'bob smith', 'fred bob', 'jim smith', 'marky mark', 'tom thompson'];
@@ -20,9 +20,9 @@ $(function() {
   test("it detects & sorts numerical rows when th is clicked", function() {
     var $t = getTable();
     var floats = ['0.5', '0.0', '0.2', '0.7', '0.4', '0.4'];
-    var sorted_floats = ['0.7', '0.5', '0.4', '0.4', '0.2', '0.0'];
-    var numbers = ['17','95.25','25%','$15','0.1','100'];
-    var sorted_numbers = ["100", "95.25", "17", "$15", "25%", "0.1"];
+    var sorted_floats = ['0.0', '0.2', '0.4', '0.4', '0.5', '0.7'];
+    var numbers = ['17','95.25','0','$15','0.1','100'];
+    var sorted_numbers = ['0', '0.1', '$15', '17', '95.25', '100'];
     var $numbers = addColumn('number', numbers);
     var $floats = addColumn('float', floats);
     $t.sortr();
@@ -32,7 +32,6 @@ $(function() {
     same(getColumnContents('number'), sorted_numbers, 'sorts numbers properly');
     $floats.click();
     same(getColumnContents('float'), sorted_floats, 'sorts floats properly');
-    equals($floats.attr('class'), 'sortr-desc', 'applies sortr-desc class');
   });
 
   test("it detects & sorts date rows when th is clicked, falling back to alphabetical, and reversing active row if clicked", function() {
