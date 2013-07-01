@@ -45,8 +45,11 @@
         $rows.each (i, v) ->
           $td = $(v).children().eq($th.index())
           value = $td.text().toLowerCase()
-          if !$td.text() and $td.find(":checkbox").length
-            value = $td.find(":checkbox").prop("checked")
+          if !value
+            if $td.find(":checkbox").length
+              value = $td.find(":checkbox").prop("checked")
+            else if $td.find("input").length
+              value = $td.find("input").val().toLowerCase()
           if !prev_value then prev_value = value
           $td.data('sortr-value', value)
           if types.numeric != false then types.numeric = tp.isNumeric(value)

@@ -90,7 +90,7 @@
   test "it detects & sorts by checkbox value", ->
     checkboxBuilder = (vals) ->
       checked = '<input type="checkbox" checked="checked">'
-      unchecked = '<input type=\"checkbox\">'
+      unchecked = '<input type="checkbox">'
       checks = []
       checks.push(if check then checked else unchecked) for check in vals
       checks
@@ -104,7 +104,18 @@
     same(table.getColumnContents('checkboxes'), sorted, 'sorts checkboxes with checked at top by default')
 
   test "it detects & sorts by value on input", ->
-    ok(false)
+    inputBuilder = (vals) ->
+      inputs = []
+      inputs.push('<input type="text" value="' + val + '">') for val in vals
+      inputs
+    $t = table.init()
+    unsorted = inputBuilder(['lorem', 'IPSUM', 'dolor', 'sic amet', 'am I right?'])
+    sorted = inputBuilder(['am I right?', 'dolor', 'IPSUM', 'lorem', 'sic amet'])
+    $th = table.addColumn('inputs', unsorted)
+    $t.sortr()
+    table.checkColumnType($th, "alpha")
+    $th.click()
+    same(table.getColumnContents('inputs'), sorted, 'sorts inputs by value')
 
   test "it allows for sorting by data attributes instead of content", ->
     ok(false)
