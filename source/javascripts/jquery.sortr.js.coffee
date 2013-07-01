@@ -12,8 +12,7 @@
     class_cache: []
     applyClass: ($th, dir) ->
       $th
-        .removeClass("#{@name}-asc")
-        .removeClass("#{@name}-desc")
+        .removeClass("#{@name}-asc #{@name}-desc")
         .addClass("#{@name}-#{dir}")
     build: ->
       table_parser.parse(@$el)
@@ -22,15 +21,15 @@
     cacheClasses: ->
       s = @
       s.class_cache = []
-      if @move_classes then return
-      s.$el.find('tbody tr').each ->
-        s.class_cache.push($(this).attr('class'))
-        $(this).removeClass()
+      if !@move_classes
+        s.$el.find('tbody tr').each ->
+          s.class_cache.push($(this).attr('class'))
+          $(this).removeClass()
     restoreClasses: ->
       s = @
-      if !s.class_cache.length then return
-      s.$el.find('tbody tr').each (idx) ->
-        $(this).addClass(s.class_cache[idx])
+      if s.class_cache.length
+        s.$el.find('tbody tr').each (idx) ->
+          $(this).addClass(s.class_cache[idx])
     refresh: ->
       s = $(@).data('sortr')
       s.$el.find('th').removeClass("#{sortr.name}-asc #{sortr.name}-desc")
@@ -70,13 +69,12 @@
 
   table_parser =
     parse: ($table) ->
-      @$table = $table
-      $rows = $table.find('tbody tr')
       tp = @
+      $rows = $table.find('tbody tr')
       $table.find('thead th').each ->
         $th = $(@)
         prev_value = false
-        types = {}
+        tp.types = {}
         $rows.each (i, v) ->
           $td = $(v).children().eq($th.index())
           sortby = $td.data('sortr-sortby')
@@ -88,17 +86,29 @@
               value = $td.find("input").val().toLowerCase()
           if !prev_value then prev_value = value
           $td.data('sortr-value', value)
-          if types.numeric != false then types.numeric = tp.isNumeric(value)
-          if types.identical != false then types.identical = (value == prev_value)
-          if types.boolean != false then types.boolean = typeof value == "boolean"
+          tp.check('numeric', value)
+          tp.check('identical', value, prev_value)
+          tp.check('boolean', value)
           prev_value = value
           true
-        method = 'alpha'
-        if types.numeric != false then method = 'numeric'
-        if types.identical != false then method = 'identical'
-        if types.boolean != false then method = 'boolean'
+        method = tp.detectMethod()
         if method is 'numeric' then tp.sanitizeAllNumbers($rows, $th.index())
         $th.data('sortr-method', if method != 'identical' then method)
+    check: (type, val, prev_val) ->
+      if @types[type] is false then return
+      @types[type] = switch type
+        when 'numeric'
+          @isNumeric(val)
+        when 'identical'
+          val == prev_val
+        when 'boolean'
+          typeof val == "boolean"
+    detectMethod: ->
+      method = 'alpha'
+      if @types.numeric != false then method = 'numeric'
+      if @types.identical != false then method = 'identical'
+      if @types.boolean != false then method = 'boolean'
+      method
     sanitizeNumber: (val) ->
       if typeof val != "boolean"
         val.replace(/[$%º¤¥£¢\,]/, '')
