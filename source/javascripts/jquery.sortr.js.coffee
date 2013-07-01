@@ -6,12 +6,27 @@
       alpha: 'asc'
       boolean: 'desc'
       numeric: 'desc'
+    move_classes: false
+    class_cache: []
     applyClass: ($th, dir) ->
       $th
         .removeClass("#{@name}-asc")
         .removeClass("#{@name}-desc")
         .addClass("#{@name}-#{dir}")
+    cacheClasses: ->
+      s = @
+      s.class_cache = []
+      if @move_classes then return
+      s.$el.find('tbody tr').each ->
+        s.class_cache.push($(this).attr('class'))
+        $(this).removeClass()
+    restoreClasses: ->
+      s = @
+      if !s.class_cache.length then return
+      s.$el.find('tbody tr').each (idx) ->
+        $(this).addClass(s.class_cache[idx])
     sortByColumn: ($th) ->
+      @cacheClasses()
       idx = $th.index()
       $table = $th.closest('table')
       method = $th.data('sortr-method')
@@ -26,6 +41,8 @@
         @applyClass($th, @initial_sort[method])
         if empty_rows.length then sorted.push.apply(sorted, empty_rows)
       $table.find('tbody').append($(sorted))
+      @restoreClasses()
+      $table
     stripEmptyRows: ($table, idx) ->
       $rows = $table.find('tr').filter ->
         $(@).children().eq(idx).data('sortr-value') == ''
@@ -36,6 +53,7 @@
 
   table_parser =
     parse: ($table) ->
+      @$table = $table
       $rows = $table.find('tbody tr')
       tp = @
       $table.find('thead th').each ->

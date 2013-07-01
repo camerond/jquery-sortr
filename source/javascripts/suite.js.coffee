@@ -130,7 +130,17 @@
     same(table.getColumnContents('latin'), sorted_by_data, 'sorts cells by data attribute instead of contents')
 
   test "it properly maintains initial row classes", ->
-    ok(false)
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    classes = [true, false, true, false, true]
+    new_classes = []
+    $t.find('tr').each (idx) ->
+      if classes[idx] then $(this).addClass('alt')
+    $t.sortr()
+    dataset.$th.click()
+    $t.find('tr').each (idx) ->
+      new_classes.push($(this).hasClass('alt'))
+    same(new_classes, classes, 'classes stay in same position')
 
   module "Options"
 
@@ -144,7 +154,20 @@
     ok(false)
 
   test "it moves classes with the rows if move_classes is set to true", ->
-    ok(false)
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    classes = [true, false, true, false, true]
+    moved_classes = [true, true, false, true, false]
+    new_classes = []
+    $t.find('tr').each (idx) ->
+      if classes[idx] then $(this).addClass('alt')
+    $t.sortr(
+      move_classes: true
+    )
+    dataset.$th.click()
+    $t.find('tr').each (idx) ->
+      new_classes.push($(this).hasClass('alt'))
+    same(new_classes, moved_classes, 'classes move with rows')
 
   module "Methods"
 
