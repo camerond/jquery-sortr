@@ -2,19 +2,26 @@
 
   sortr =
     name: 'sortr'
-    applyClass: ($th, direction) ->
+    initial_sort:
+      alpha: 'asc'
+      numeric: 'desc'
+    applyClass: ($th, dir) ->
       $th
         .removeClass("#{@name}-asc")
         .removeClass("#{@name}-desc")
-        .addClass("#{@name}-#{direction}")
+        .addClass("#{@name}-#{dir}")
     sortByColumn: ($th) ->
       $table = $th.closest('table')
       row_array = $table.find('tbody tr').detach().toArray()
-      method = $th.data('sortr-method')
-      if method
+      if $th.is(".#{@name}-asc, .#{@name}-desc")
+        sorted = row_array.reverse()
+        @applyClass($th, if $th.hasClass("#{@name}-asc") then 'desc' else 'asc')
+      else
+        method = $th.data('sortr-method')
         sorted = row_sorter.process(method, row_array, $th.index())
-        $table.find('tbody').append($(sorted))
-        @applyClass($th, 'asc')
+        if @initial_sort[method] is 'desc' then sorted.reverse()
+        @applyClass($th, @initial_sort[method])
+      $table.find('tbody').append($(sorted))
     init: ->
       table_parser.parse(@$el)
       @$el.on("click", "th", (e) => @sortByColumn($(e.target)))

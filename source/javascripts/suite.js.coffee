@@ -14,6 +14,15 @@
           $td.appendTo($tr)
       same(table.getColumnContents(name), values, 'appends columns properly')
       $th
+    generateAlphaColumn: ->
+      alpha = ['lorem', 'IPSUM', 'dolor', 'sic amet', 'am I right?']
+      sorted_alpha = ['am I right?', 'dolor', 'IPSUM', 'lorem', 'sic amet']
+      $th = @addColumn('latin', alpha)
+      dataset =
+        $th: $th
+        unsorted: alpha
+        sorted: sorted_alpha
+      dataset
     getColumnContents: (selector) ->
       idx = @$el.find("thead #{selector}").index()
       $rows = @$el.find('tbody tr')
@@ -31,27 +40,31 @@
 
   test "it defaults to sorting a row alphabetically & ascending when th is clicked", ->
     $t = table.init()
-    alpha = ['lorem', 'IPSUM', 'dolor', 'sic amet', 'am I right?']
-    sorted_alpha = ['am I right?', 'dolor', 'IPSUM', 'lorem', 'sic amet']
-    $th = table.addColumn('latin', alpha)
+    dataset = table.generateAlphaColumn()
     $t.sortr()
-    table.checkColumnType($th, 'alpha')
-    $th.click()
-    same(table.getColumnContents('latin'), sorted_alpha, 'sorts names properly')
-    equals($th.attr('class'), 'sortr-asc', 'applies sortr-asc class')
+    table.checkColumnType(dataset.$th, 'alpha')
+    dataset.$th.click()
+    same(table.getColumnContents('latin'), dataset.sorted, 'sorts names properly')
+    equals(dataset.$th.attr('class'), 'sortr-asc', 'applies sortr-asc class')
 
   test "it detects & sorts numerical rows when th is clicked", ->
     $t = table.init()
     numbers = ['$50.00', '5', '-0.11', '0', '100,000', '$34']
-    sorted_numbers = ['-0.11', '0', '5', '$34', '$50.00', '100,000']
-    $numbers = table.addColumn('number', numbers)
+    sorted_numbers = ['100,000', '$50.00', '$34', '5', '0', '-0.11']
+    $th = table.addColumn('number', numbers)
     $t.sortr()
-    table.checkColumnType($numbers, 'numeric')
-    $numbers.click()
-    same(table.getColumnContents('number'), sorted_numbers, 'sorts numbers properly')
+    table.checkColumnType($th, 'numeric')
+    $th.click()
+    same(table.getColumnContents('number'), sorted_numbers, 'sorts numbers descending by default')
+    equals($th.attr('class'), 'sortr-desc', 'applies sortr-desc class')
 
   test "it reverses rows when actively sorted row is clicked", ->
-    ok(false)
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    $t.sortr()
+    dataset.$th.click()
+    dataset.$th.click()
+    same(table.getColumnContents('latin'), dataset.sorted.reverse(), 'reverses columns properly')
 
   test "it gracefully sorts empty cells", ->
     ok(false)
