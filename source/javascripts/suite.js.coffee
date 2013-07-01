@@ -88,7 +88,20 @@
     same(table.getColumnContents('latin'), dataset.unsorted, 'does not reverse sort on identical column')
 
   test "it detects & sorts by checkbox value", ->
-    ok(false)
+    checkboxBuilder = (vals) ->
+      checked = '<input type="checkbox" checked="checked">'
+      unchecked = '<input type=\"checkbox\">'
+      checks = []
+      checks.push(if check then checked else unchecked) for check in vals
+      checks
+    $t = table.init()
+    unsorted = checkboxBuilder([true, false, false, true, false])
+    sorted = checkboxBuilder([true, true, false, false, false])
+    $th = table.addColumn('checkboxes', unsorted)
+    $t.sortr()
+    table.checkColumnType($th, "boolean")
+    $th.click()
+    same(table.getColumnContents('checkboxes'), sorted, 'sorts checkboxes with checked at top by default')
 
   test "it detects & sorts by value on input", ->
     ok(false)

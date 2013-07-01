@@ -4,6 +4,7 @@
     name: 'sortr'
     initial_sort:
       alpha: 'asc'
+      boolean: 'desc'
       numeric: 'desc'
     applyClass: ($th, dir) ->
       $th
@@ -44,19 +45,24 @@
         $rows.each (i, v) ->
           $td = $(v).children().eq($th.index())
           value = $td.text().toLowerCase()
+          if !$td.text() and $td.find(":checkbox").length
+            value = $td.find(":checkbox").prop("checked")
           if !prev_value then prev_value = value
           $td.data('sortr-value', value)
           if types.numeric != false then types.numeric = tp.isNumeric(value)
           if types.identical != false then types.identical = (value == prev_value)
+          if types.boolean != false then types.boolean = typeof value == "boolean"
           prev_value = value
           true
         method = 'alpha'
         if types.numeric != false then method = 'numeric'
         if types.identical != false then method = 'identical'
+        if types.boolean != false then method = 'boolean'
         if method is 'numeric' then tp.sanitizeAllNumbers($rows, $th.index())
         $th.data('sortr-method', if method != 'identical' then method)
     sanitizeNumber: (val) ->
-      val.replace(/[$%º¤¥£¢\,]/, '')
+      if typeof val != "boolean"
+        val.replace(/[$%º¤¥£¢\,]/, '')
     sanitizeAllNumbers: ($rows, idx) ->
       tp = @
       $rows.each ->
@@ -78,6 +84,8 @@
       i = $(a).children().eq(row_sorter.idx).data('sortr-value')
       j = $(b).children().eq(row_sorter.idx).data('sortr-value')
       row_sorter.output(i > j, i < j, i == j)
+    boolean: (a, b) ->
+      row_sorter.alpha(a, b)
     numeric: (a, b) ->
       i = parseFloat($(a).children().eq(row_sorter.idx).data('sortr-value'))
       j = parseFloat($(b).children().eq(row_sorter.idx).data('sortr-value'))
