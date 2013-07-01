@@ -150,8 +150,27 @@
   test "it allows an initial sorting direction by the 'sortr-default' data attribute", ->
     ok(false)
 
-  test "it allows overrides to default sorting direction", ->
-    ok(false)
+  test "it allows overrides to default sorting direction through option", ->
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    $t.sortr(
+      initial_sort:
+        alpha: 'desc'
+    )
+    table.checkColumnType(dataset.$th, 'alpha')
+    dataset.$th.click()
+    same(table.getColumnContents('latin'), dataset.sorted.reverse(), 'sorts alpha descending')
+    equals(dataset.$th.attr('class'), 'sortr-desc', 'applies sortr-desc class')
+
+  test "it allows overrides to default sorting direction through data attribute", ->
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    dataset.$th.attr('data-sortr-initial-sort', 'desc')
+    $t.sortr()
+    table.checkColumnType(dataset.$th, 'alpha')
+    dataset.$th.click()
+    same(table.getColumnContents('latin'), dataset.sorted.reverse(), 'sorts alpha descending')
+    equals(dataset.$th.attr('class'), 'sortr-desc', 'applies sortr-desc class')
 
   test "it moves classes with the rows if move_classes is set to true", ->
     $t = table.init()

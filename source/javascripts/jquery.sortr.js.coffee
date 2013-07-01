@@ -37,8 +37,9 @@
       else
         empty_rows = @stripEmptyRows($table, idx)
         sorted = row_sorter.process(method, $table.find('tbody tr').detach().toArray(), idx)
-        if @initial_sort[method] is 'desc' then sorted.reverse()
-        @applyClass($th, @initial_sort[method])
+        dir = $th.data('sortr-initial-sort') or @initial_sort[method]
+        if dir is 'desc' then sorted.reverse()
+        @applyClass($th, dir)
         if empty_rows.length then sorted.push.apply(sorted, empty_rows)
       $table.find('tbody').append($(sorted))
       @restoreClasses()
