@@ -144,11 +144,12 @@
 
   module "Options"
 
-  test "ignore specific elements in table cells", ->
-    ok(false)
-
   test "it allows an initial sorting direction by the 'sortr-default' data attribute", ->
-    ok(false)
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    $t.find('th').attr('data-sortr-default', true)
+    $t.sortr()
+    same(table.getColumnContents('latin'), dataset.sorted, 'sorts data-sortr-default column by default')
 
   test "it allows overrides to default sorting direction through option", ->
     $t = table.init()

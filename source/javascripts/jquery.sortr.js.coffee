@@ -44,12 +44,17 @@
       $table.find('tbody').append($(sorted))
       @restoreClasses()
       $table
+    sortInitialColumn: ->
+      $initial = @$el.find('[data-sortr-default]')
+      if $initial.length
+        @sortByColumn($initial.first())
     stripEmptyRows: ($table, idx) ->
       $rows = $table.find('tr').filter ->
         $(@).children().eq(idx).data('sortr-value') == ''
       $rows.detach().toArray()
     init: ->
       table_parser.parse(@$el)
+      @sortInitialColumn()
       @$el.on("click", "th", (e) => @sortByColumn($(e.target)))
 
   table_parser =
