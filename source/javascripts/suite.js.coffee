@@ -192,7 +192,15 @@
   module "Methods"
 
   test "refresh", ->
-    ok(false)
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    $t.sortr()
+    dataset.$th.click()
+    $t.find('tr').last().after($("<tr />").append($("<td />", text: "herp derp")))
+    $t.sortr('refresh')
+    dataset.$th.click()
+    sorted = ['am I right?', 'dolor', 'herp derp', 'IPSUM', 'lorem', 'sic amet']
+    deepEqual(table.getColumnContents('latin'), sorted, 'sorts properly after item has been added and refresh called')
 
   test "beforeSort", ->
     ok(false)

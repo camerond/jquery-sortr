@@ -13,6 +13,10 @@
         .removeClass("#{@name}-asc")
         .removeClass("#{@name}-desc")
         .addClass("#{@name}-#{dir}")
+    build: ->
+      table_parser.parse(@$el)
+      @sortInitialColumn()
+      @$el
     cacheClasses: ->
       s = @
       s.class_cache = []
@@ -25,6 +29,10 @@
       if !s.class_cache.length then return
       s.$el.find('tbody tr').each (idx) ->
         $(this).addClass(s.class_cache[idx])
+    refresh: ->
+      sortr = $(@).data('sortr')
+      sortr.$el.find('th').removeClass("#{sortr.name}-asc #{sortr.name}-desc")
+      sortr.build()
     sortByColumn: ($th) ->
       @cacheClasses()
       idx = $th.index()
@@ -53,8 +61,7 @@
         $(@).children().eq(idx).data('sortr-value') == ''
       $rows.detach().toArray()
     init: ->
-      table_parser.parse(@$el)
-      @sortInitialColumn()
+      @build()
       @$el.on("click", "th", (e) => @sortByColumn($(e.target)))
 
   table_parser =
