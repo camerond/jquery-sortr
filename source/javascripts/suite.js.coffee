@@ -12,7 +12,7 @@
           $tr = $('<tr />')
           $tr.appendTo($t.find('tbody'))
         $td.appendTo($tr)
-      same(table.getColumnContents("#{name}"), values, 'appends columns properly')
+      deepEqual(table.getColumnContents("#{name}"), values, 'appends columns properly')
       $th
     generateAlphaColumn: ->
       alpha = ['lorem', 'IPSUM', 'dolor', 'sic amet', 'am I right?']
@@ -31,12 +31,12 @@
         contents.push($(this).find('td').eq(idx).html())
       contents
     checkColumnType: ($th, type) ->
-      equals($th.data('sortr-method'), type, 'detects column as "' + type + '"')
+      equal($th.data('sortr-method'), type, 'detects column as "' + type + '"')
     init: ->
       @$el = $("#sortr-test")
 
   test "it is chainable", ->
-    same(table.init().sortr().hide().show(), $("#sortr-test"))
+    deepEqual(table.init().sortr().hide().show(), $("#sortr-test"))
 
   test "it defaults to sorting a row alphabetically & ascending when th is clicked", ->
     $t = table.init()
@@ -44,8 +44,8 @@
     $t.sortr()
     table.checkColumnType(dataset.$th, 'alpha')
     dataset.$th.click()
-    same(table.getColumnContents('latin'), dataset.sorted, 'sorts names properly')
-    equals(dataset.$th.attr('class'), 'sortr-asc', 'applies sortr-asc class')
+    deepEqual(table.getColumnContents('latin'), dataset.sorted, 'sorts names properly')
+    equal(dataset.$th.attr('class'), 'sortr-asc', 'applies sortr-asc class')
 
   test "it detects & sorts numerical rows when th is clicked", ->
     $t = table.init()
@@ -55,8 +55,8 @@
     $t.sortr()
     table.checkColumnType($th, 'numeric')
     $th.click()
-    same(table.getColumnContents('number'), sorted_numbers, 'sorts numbers descending by default')
-    equals($th.attr('class'), 'sortr-desc', 'applies sortr-desc class')
+    deepEqual(table.getColumnContents('number'), sorted_numbers, 'sorts numbers descending by default')
+    equal($th.attr('class'), 'sortr-desc', 'applies sortr-desc class')
 
   test "it reverses rows when actively sorted row is clicked", ->
     $t = table.init()
@@ -64,7 +64,7 @@
     $t.sortr()
     dataset.$th.click()
     dataset.$th.click()
-    same(table.getColumnContents('latin'), dataset.sorted.reverse(), 'reverses columns properly')
+    deepEqual(table.getColumnContents('latin'), dataset.sorted.reverse(), 'reverses columns properly')
 
   test "it sorts empty cells to bottom by default", ->
     $t = table.init()
@@ -74,18 +74,18 @@
     $t.sortr()
     dataset.$th.click()
     dataset.sorted.push("")
-    same(table.getColumnContents('latin'), dataset.sorted, 'puts empty cell at end')
+    deepEqual(table.getColumnContents('latin'), dataset.sorted, 'puts empty cell at end')
 
   test "it bypasses column if column is all identical values", ->
     $t = table.init()
     dataset = table.generateAlphaColumn()
-    $th = table.addColumn('same', "blah blah blah blah blah".split(" "))
+    $th = table.addColumn('deepEqual', "blah blah blah blah blah".split(" "))
     $t.sortr()
     table.checkColumnType($th, undefined)
     $th.click()
-    same(table.getColumnContents('latin'), dataset.unsorted, 'does not sort on identical column')
+    deepEqual(table.getColumnContents('latin'), dataset.unsorted, 'does not sort on identical column')
     $th.click()
-    same(table.getColumnContents('latin'), dataset.unsorted, 'does not reverse sort on identical column')
+    deepEqual(table.getColumnContents('latin'), dataset.unsorted, 'does not reverse sort on identical column')
 
   test "it detects & sorts by checkbox value", ->
     checkboxBuilder = (vals) ->
@@ -101,7 +101,7 @@
     $t.sortr()
     table.checkColumnType($th, "boolean")
     $th.click()
-    same(table.getColumnContents('checkboxes'), sorted, 'sorts checkboxes with checked at top by default')
+    deepEqual(table.getColumnContents('checkboxes'), sorted, 'sorts checkboxes with checked at top by default')
 
   test "it detects & sorts by value on input", ->
     inputBuilder = (vals) ->
@@ -115,7 +115,7 @@
     $t.sortr()
     table.checkColumnType($th, "alpha")
     $th.click()
-    same(table.getColumnContents('inputs'), sorted, 'sorts inputs by value')
+    deepEqual(table.getColumnContents('inputs'), sorted, 'sorts inputs by value')
 
   test "it allows for sorting by data attributes instead of content", ->
     $t = table.init()
@@ -127,7 +127,7 @@
     $t.sortr()
     table.checkColumnType(dataset.$th, "numeric")
     dataset.$th.click()
-    same(table.getColumnContents('latin'), sorted_by_data, 'sorts cells by data attribute instead of contents')
+    deepEqual(table.getColumnContents('latin'), sorted_by_data, 'sorts cells by data attribute instead of contents')
 
   test "it properly maintains initial row classes", ->
     $t = table.init()
@@ -140,7 +140,7 @@
     dataset.$th.click()
     $t.find('tr').each (idx) ->
       new_classes.push($(this).hasClass('alt'))
-    same(new_classes, classes, 'classes stay in same position')
+    deepEqual(new_classes, classes, 'classes stay in deepEqual position')
 
   module "Options"
 
@@ -149,7 +149,7 @@
     dataset = table.generateAlphaColumn()
     $t.find('th').attr('data-sortr-default', true)
     $t.sortr()
-    same(table.getColumnContents('latin'), dataset.sorted, 'sorts data-sortr-default column by default')
+    deepEqual(table.getColumnContents('latin'), dataset.sorted, 'sorts data-sortr-default column by default')
 
   test "it allows overrides to default sorting direction through option", ->
     $t = table.init()
@@ -160,8 +160,8 @@
     )
     table.checkColumnType(dataset.$th, 'alpha')
     dataset.$th.click()
-    same(table.getColumnContents('latin'), dataset.sorted.reverse(), 'sorts alpha descending')
-    equals(dataset.$th.attr('class'), 'sortr-desc', 'applies sortr-desc class')
+    deepEqual(table.getColumnContents('latin'), dataset.sorted.reverse(), 'sorts alpha descending')
+    equal(dataset.$th.attr('class'), 'sortr-desc', 'applies sortr-desc class')
 
   test "it allows overrides to default sorting direction through data attribute", ->
     $t = table.init()
@@ -170,8 +170,8 @@
     $t.sortr()
     table.checkColumnType(dataset.$th, 'alpha')
     dataset.$th.click()
-    same(table.getColumnContents('latin'), dataset.sorted.reverse(), 'sorts alpha descending')
-    equals(dataset.$th.attr('class'), 'sortr-desc', 'applies sortr-desc class')
+    deepEqual(table.getColumnContents('latin'), dataset.sorted.reverse(), 'sorts alpha descending')
+    equal(dataset.$th.attr('class'), 'sortr-desc', 'applies sortr-desc class')
 
   test "it moves classes with the rows if move_classes is set to true", ->
     $t = table.init()
@@ -187,7 +187,7 @@
     dataset.$th.click()
     $t.find('tr').each (idx) ->
       new_classes.push($(this).hasClass('alt'))
-    same(new_classes, moved_classes, 'classes move with rows')
+    deepEqual(new_classes, moved_classes, 'classes move with rows')
 
   module "Methods"
 
