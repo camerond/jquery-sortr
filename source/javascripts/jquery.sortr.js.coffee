@@ -44,7 +44,8 @@
         types = {}
         $rows.each (i, v) ->
           $td = $(v).children().eq($th.index())
-          value = $td.text().toLowerCase()
+          sortby = $td.data('sortr-sortby')
+          value = if sortby then "#{sortby}".toLowerCase() else $td.text().toLowerCase()
           if !value
             if $td.find(":checkbox").length
               value = $td.find(":checkbox").prop("checked")
@@ -70,7 +71,7 @@
       tp = @
       $rows.each ->
         $td = $(@).children().eq(idx)
-        $td.data('sortr-value', tp.sanitizeNumber($td.text()))
+        $td.data('sortr-value', tp.sanitizeNumber($td.data('sortr-value')))
     isNumeric: (val) ->
       v = @sanitizeNumber(val)
       !isNaN(parseFloat(v)) && isFinite(v)

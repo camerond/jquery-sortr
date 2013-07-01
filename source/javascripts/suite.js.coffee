@@ -118,7 +118,16 @@
     same(table.getColumnContents('inputs'), sorted, 'sorts inputs by value')
 
   test "it allows for sorting by data attributes instead of content", ->
-    ok(false)
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    arbitrary_values = ["3", "2", "5", "1", "4"]
+    sorted_by_data = ['dolor', 'am I right?', 'lorem', 'IPSUM', 'sic amet']
+    table.$el.find("td").each (idx) ->
+      $(@).attr('data-sortr-sortby', arbitrary_values[idx])
+    $t.sortr()
+    table.checkColumnType(dataset.$th, "numeric")
+    dataset.$th.click()
+    same(table.getColumnContents('latin'), sorted_by_data, 'sorts cells by data attribute instead of contents')
 
   test "it properly maintains initial row classes", ->
     ok(false)
