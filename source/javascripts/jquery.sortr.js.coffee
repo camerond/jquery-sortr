@@ -11,17 +11,24 @@
         .removeClass("#{@name}-desc")
         .addClass("#{@name}-#{dir}")
     sortByColumn: ($th) ->
+      idx = $th.index()
       $table = $th.closest('table')
-      row_array = $table.find('tbody tr').detach().toArray()
+      method = $th.data('sortr-method')
+      if !method then return
       if $th.is(".#{@name}-asc, .#{@name}-desc")
-        sorted = row_array.reverse()
+        sorted = $table.find('tbody tr').detach().toArray().reverse()
         @applyClass($th, if $th.hasClass("#{@name}-asc") then 'desc' else 'asc')
       else
-        method = $th.data('sortr-method')
-        sorted = row_sorter.process(method, row_array, $th.index())
+        empty_rows = @stripEmptyRows($table, idx)
+        sorted = row_sorter.process(method, $table.find('tbody tr').detach().toArray(), idx)
         if @initial_sort[method] is 'desc' then sorted.reverse()
         @applyClass($th, @initial_sort[method])
+        if empty_rows.length then sorted.push.apply(sorted, empty_rows)
       $table.find('tbody').append($(sorted))
+    stripEmptyRows: ($table, idx) ->
+      $rows = $table.find('tr').filter ->
+        $(@).children().eq(idx).data('sortr-value') == ''
+      $rows.detach().toArray()
     init: ->
       table_parser.parse(@$el)
       @$el.on("click", "th", (e) => @sortByColumn($(e.target)))
@@ -30,20 +37,24 @@
     parse: ($table) ->
       $rows = $table.find('tbody tr')
       tp = @
-      types = {}
-      @$table = $table
       $table.find('thead th').each ->
         $th = $(@)
+        prev_value = false
+        types = {}
         $rows.each (i, v) ->
           $td = $(v).children().eq($th.index())
           value = $td.text().toLowerCase()
+          if !prev_value then prev_value = value
           $td.data('sortr-value', value)
           if types.numeric != false then types.numeric = tp.isNumeric(value)
+          if types.identical != false then types.identical = (value == prev_value)
+          prev_value = value
           true
         method = 'alpha'
         if types.numeric != false then method = 'numeric'
+        if types.identical != false then method = 'identical'
         if method is 'numeric' then tp.sanitizeAllNumbers($rows, $th.index())
-        $th.data('sortr-method', method)
+        $th.data('sortr-method', if method != 'identical' then method)
     sanitizeNumber: (val) ->
       val.replace(/[$%º¤¥£¢\,]/, '')
     sanitizeAllNumbers: ($rows, idx) ->
@@ -57,9 +68,8 @@
 
   row_sorter =
     process: (method, rows, idx) ->
-      @row_array = rows
       @idx = idx
-      @row_array.sort(@[method])
+      rows.sort(@[method])
     output: (positive, negative, neutral) ->
       return 0 if neutral
       return -1 if negative

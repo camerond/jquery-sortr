@@ -11,8 +11,8 @@
         if (!$tr)
           $tr = $('<tr />')
           $tr.appendTo($t.find('tbody'))
-          $td.appendTo($tr)
-      same(table.getColumnContents(name), values, 'appends columns properly')
+        $td.appendTo($tr)
+      same(table.getColumnContents("#{name}"), values, 'appends columns properly')
       $th
     generateAlphaColumn: ->
       alpha = ['lorem', 'IPSUM', 'dolor', 'sic amet', 'am I right?']
@@ -24,7 +24,7 @@
         sorted: sorted_alpha
       dataset
     getColumnContents: (selector) ->
-      idx = @$el.find("thead #{selector}").index()
+      idx = @$el.find("thead ##{selector}").index()
       $rows = @$el.find('tbody tr')
       contents = []
       $rows.each ->
@@ -66,11 +66,26 @@
     dataset.$th.click()
     same(table.getColumnContents('latin'), dataset.sorted.reverse(), 'reverses columns properly')
 
-  test "it gracefully sorts empty cells", ->
-    ok(false)
+  test "it sorts empty cells to bottom by default", ->
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    $empty_row = $("<tr />").append($("<td />"))
+    $t.find("td").eq(1).after($empty_row)
+    $t.sortr()
+    dataset.$th.click()
+    dataset.sorted.push("")
+    same(table.getColumnContents('latin'), dataset.sorted, 'puts empty cell at end')
 
-  test "it does no sorting if row is all identical values", ->
-    ok(false)
+  test "it bypasses column if column is all identical values", ->
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    $th = table.addColumn('same', "blah blah blah blah blah".split(" "))
+    $t.sortr()
+    table.checkColumnType($th, undefined)
+    $th.click()
+    same(table.getColumnContents('latin'), dataset.unsorted, 'does not sort on identical column')
+    $th.click()
+    same(table.getColumnContents('latin'), dataset.unsorted, 'does not reverse sort on identical column')
 
   test "it detects & sorts by checkbox value", ->
     ok(false)
