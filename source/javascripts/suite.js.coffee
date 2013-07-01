@@ -1,7 +1,7 @@
 (($) ->
 
   table =
-    addColumn: (name, values) ->
+    addColumn: (name, values, bypass_check) ->
       $t = @$el
       $th = $('<th>').text(name)
       $th.appendTo($t.find('thead')).attr('id', name)
@@ -12,7 +12,8 @@
           $tr = $('<tr />')
           $tr.appendTo($t.find('tbody'))
         $td.appendTo($tr)
-      deepEqual(table.getColumnContents("#{name}"), values, 'appends columns properly')
+      if !bypass_check
+        deepEqual(table.getColumnContents("#{name}"), values, 'appends columns properly')
       $th
     generateAlphaColumn: ->
       alpha = ['lorem', 'IPSUM', 'dolor', 'sic amet', 'am I right?']
@@ -79,7 +80,7 @@
   test "it bypasses column if column is all identical values", ->
     $t = table.init()
     dataset = table.generateAlphaColumn()
-    $th = table.addColumn('deepEqual', "blah blah blah blah blah".split(" "))
+    $th = table.addColumn('same', "blah blah blah blah blah".split(" "))
     $t.sortr()
     table.checkColumnType($th, undefined)
     $th.click()
@@ -89,19 +90,20 @@
 
   test "it detects & sorts by checkbox value", ->
     checkboxBuilder = (vals) ->
-      checked = '<input type="checkbox" checked="checked">'
-      unchecked = '<input type="checkbox">'
       checks = []
-      checks.push(if check then checked else unchecked) for check in vals
+      checks.push("<input type='checkbox' #{if check then 'checked' else ''} />") for check in vals
       checks
     $t = table.init()
     unsorted = checkboxBuilder([true, false, false, true, false])
-    sorted = checkboxBuilder([true, true, false, false, false])
-    $th = table.addColumn('checkboxes', unsorted)
+    sorted = [true, true, false, false, false]
+    $th = table.addColumn('checkboxes', unsorted, true)
     $t.sortr()
     table.checkColumnType($th, "boolean")
     $th.click()
-    deepEqual(table.getColumnContents('checkboxes'), sorted, 'sorts checkboxes with checked at top by default')
+    cell_values = []
+    $t.find('td').each ->
+      cell_values.push(!!$(this).find(":checkbox").prop("checked"))
+    deepEqual(cell_values, sorted, 'sorts checkboxes with checked at top by default')
 
   test "it detects & sorts by value on input", ->
     inputBuilder = (vals) ->
@@ -110,12 +112,15 @@
       inputs
     $t = table.init()
     unsorted = inputBuilder(['lorem', 'IPSUM', 'dolor', 'sic amet', 'am I right?'])
-    sorted = inputBuilder(['am I right?', 'dolor', 'IPSUM', 'lorem', 'sic amet'])
-    $th = table.addColumn('inputs', unsorted)
+    sorted = ['am I right?', 'dolor', 'IPSUM', 'lorem', 'sic amet']
+    $th = table.addColumn('inputs', unsorted, true)
     $t.sortr()
     table.checkColumnType($th, "alpha")
     $th.click()
-    deepEqual(table.getColumnContents('inputs'), sorted, 'sorts inputs by value')
+    cell_values = []
+    $t.find('td').each ->
+      cell_values.push($(this).find("input").val())
+    deepEqual(cell_values, sorted, 'sorts inputs by value')
 
   test "it allows for sorting by data attributes instead of content", ->
     $t = table.init()
