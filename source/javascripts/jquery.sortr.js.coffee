@@ -7,6 +7,8 @@
       boolean: 'desc'
       numeric: 'desc'
     move_classes: false
+    beforeSort: $.noop
+    afterSort: $.noop
     class_cache: []
     applyClass: ($th, dir) ->
       $th
@@ -30,10 +32,11 @@
       s.$el.find('tbody tr').each (idx) ->
         $(this).addClass(s.class_cache[idx])
     refresh: ->
-      sortr = $(@).data('sortr')
-      sortr.$el.find('th').removeClass("#{sortr.name}-asc #{sortr.name}-desc")
-      sortr.build()
+      s = $(@).data('sortr')
+      s.$el.find('th').removeClass("#{sortr.name}-asc #{sortr.name}-desc")
+      s.build()
     sortByColumn: ($th) ->
+      @beforeSort.apply(@$el)
       @cacheClasses()
       idx = $th.index()
       $table = $th.closest('table')
@@ -51,6 +54,7 @@
         if empty_rows.length then sorted.push.apply(sorted, empty_rows)
       $table.find('tbody').append($(sorted))
       @restoreClasses()
+      @afterSort.apply(@$el)
       $table
     sortInitialColumn: ->
       $initial = @$el.find('[data-sortr-default]')
@@ -62,7 +66,7 @@
       $rows.detach().toArray()
     init: ->
       @build()
-      @$el.on("click", "th", (e) => @sortByColumn($(e.target)))
+      @$el.on("click.sortr", "th", (e) => @sortByColumn($(e.target)))
 
   table_parser =
     parse: ($table) ->

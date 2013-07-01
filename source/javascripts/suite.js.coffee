@@ -201,11 +201,20 @@
     dataset.$th.click()
     sorted = ['am I right?', 'dolor', 'herp derp', 'IPSUM', 'lorem', 'sic amet']
     deepEqual(table.getColumnContents('latin'), sorted, 'sorts properly after item has been added and refresh called')
+    dataset.$th.click()
 
-  test "beforeSort", ->
-    ok(false)
-
-  test "afterSort", ->
-    ok(false)
+  test "beforeSort and afterSort", ->
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    $first_row = false
+    $t.sortr(
+      beforeSort: ->
+        $first_row = $(this).find("tr:first").detach()
+      afterSort: ->
+        $(this).find("tr:first").before($first_row)
+    )
+    dataset.$th.click()
+    sorted = ['lorem', 'am I right?', 'dolor', 'IPSUM', 'sic amet']
+    deepEqual(table.getColumnContents('latin'), sorted, 'detaches before sort and re-attaches after sort')
 
 )(jQuery)
