@@ -32,22 +32,24 @@
           $(this).addClass(s.class_cache[idx])
     refresh: ->
       s = $(@).data('sortr')
-      s.$el.find('th').removeClass("#{sortr.name}-asc #{sortr.name}-desc")
-      s.build()
-    sortByColumn: ($th) ->
+      $th = s.$el.find(".#{sortr.name}-asc, .#{sortr.name}-desc")
+      dir = if $th.hasClass("#{sortr.name}-asc") then 'asc' else 'desc'
+      table_parser.parse(s.$el)
+      s.sortByColumn($th, dir)
+    sortByColumn: ($th, dir) ->
       @beforeSort.apply(@$el)
       @cacheClasses()
       idx = $th.index()
       $table = $th.closest('table')
       method = $th.data('sortr-method')
       if !method then return
-      if $th.is(".#{@name}-asc, .#{@name}-desc")
+      if !dir and $th.is(".#{@name}-asc, .#{@name}-desc")
         sorted = $table.find('tbody tr').detach().toArray().reverse()
         @applyClass($th, if $th.hasClass("#{@name}-asc") then 'desc' else 'asc')
       else
         empty_rows = @stripEmptyRows($table, idx)
         sorted = row_sorter.process(method, $table.find('tbody tr').detach().toArray(), idx)
-        dir = $th.data('sortr-initial-sort') or @initial_sort[method]
+        dir = dir or $th.data('sortr-initial-sort') or @initial_sort[method]
         if dir is 'desc' then sorted.reverse()
         @applyClass($th, dir)
         if empty_rows.length then sorted.push.apply(sorted, empty_rows)

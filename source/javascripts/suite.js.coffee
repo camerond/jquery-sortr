@@ -15,10 +15,10 @@
       if !bypass_check
         deepEqual(table.getColumnContents("#{name}"), values, 'appends columns properly')
       $th
-    generateAlphaColumn: ->
+    generateAlphaColumn: (name) ->
       alpha = ['lorem', 'IPSUM', 'dolor', 'sic amet', 'am I right?']
       sorted_alpha = ['am I right?', 'dolor', 'IPSUM', 'lorem', 'sic amet']
-      $th = @addColumn('latin', alpha)
+      $th = @addColumn(name || 'latin', alpha)
       dataset =
         $th: $th
         unsorted: alpha
@@ -198,15 +198,19 @@
 
   test "refresh", ->
     $t = table.init()
-    dataset = table.generateAlphaColumn()
+    dataset1 = table.generateAlphaColumn()
+    dataset2 = table.generateAlphaColumn('latin2')
     $t.sortr()
-    dataset.$th.click()
-    $t.find('tr').last().after($("<tr />").append($("<td />", text: "herp derp")))
+    dataset1.$th.click()
+    sorted_col_index = dataset1.$th.index()
+    $t.find('tbody tr').last().after($("<tr />").html("<td>extra</td><td>cells</td>"))
     $t.sortr('refresh')
-    dataset.$th.click()
-    sorted = ['am I right?', 'dolor', 'herp derp', 'IPSUM', 'lorem', 'sic amet']
-    deepEqual(table.getColumnContents('latin'), sorted, 'sorts properly after item has been added and refresh called')
-    dataset.$th.click()
+    sorted1 = ['am I right?', 'dolor', 'extra', 'IPSUM', 'lorem', 'sic amet']
+    sorted2 = ['am I right?', 'cells', 'dolor', 'IPSUM', 'lorem', 'sic amet']
+    equal(sorted_col_index, $t.find('.sortr-asc').index(), "refresh maintains sorted column header")
+    deepEqual(table.getColumnContents('latin'), sorted1, 'refresh maintains sorted column state')
+    dataset2.$th.click()
+    deepEqual(table.getColumnContents('latin2'), sorted2, 'sorts properly after item has been added and refresh called')
 
   test "beforeSort and afterSort", ->
     $t = table.init()
