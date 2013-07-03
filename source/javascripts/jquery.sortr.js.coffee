@@ -11,9 +11,8 @@
     afterSort: $.noop
     class_cache: []
     applyClass: ($th, dir) ->
-      $th
-        .removeClass("#{@name}-asc #{@name}-desc")
-        .addClass("#{@name}-#{dir}")
+      $th.parent().children().removeClass("#{@name}-asc #{@name}-desc")
+      $th.addClass("#{@name}-#{dir}")
     build: ->
       table_parser.parse(@$el)
       @sortInitialColumn()

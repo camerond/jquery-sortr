@@ -67,6 +67,15 @@
     dataset.$th.click()
     deepEqual(table.getColumnContents('latin'), dataset.sorted.reverse(), 'reverses columns properly')
 
+  test "it properly clears existing sort class when new column is sorted", ->
+    $t = table.init()
+    dataset1 = table.generateAlphaColumn('latin1')
+    dataset2 = table.generateAlphaColumn('latin2')
+    $t.sortr()
+    dataset1.$th.click()
+    dataset2.$th.click()
+    equal($t.find("[class^=sortr]").length, 1, 'only proper th has sorting class')
+
   test "it sorts empty cells to bottom by default", ->
     $t = table.init()
     dataset = table.generateAlphaColumn()
@@ -145,7 +154,7 @@
     dataset.$th.click()
     $t.find('tr').each (idx) ->
       new_classes.push($(this).hasClass('alt'))
-    deepEqual(new_classes, classes, 'classes stay in deepEqual position')
+    deepEqual(new_classes, classes, 'classes stay in same position')
 
   module "Options"
 
