@@ -71,33 +71,32 @@
 
   table_parser =
     parse: (sortr_instance) ->
-      tp = @
       @numeric_filter = sortr_instance.numeric_filter
-      $table = sortr_instance.$el
-      $rows = $table.find('tbody tr')
-      $table.find('thead th').each ->
-        $th = $(@)
-        prev_value = false
-        tp.types = {}
-        $rows.each (i, v) ->
-          $td = $(v).children().eq($th.index())
-          sortby = $td.data('sortr-sortby')
-          value = if sortby then "#{sortby}".toLowerCase() else $td.text().toLowerCase()
-          if !value
-            if $td.find(":checkbox").length
-              value = $td.find(":checkbox").prop("checked")
-            else if $td.find("input").length
-              value = $td.find("input").val().toLowerCase()
-          if !prev_value then prev_value = value
-          $td.data('sortr-value', value)
-          tp.check('numeric', value)
-          tp.check('identical', value, prev_value)
-          tp.check('boolean', value)
-          prev_value = value
-          true
-        method = tp.detectMethod()
-        if method is 'numeric' then tp.sanitizeAllNumbers($rows, $th.index())
-        $th.data('sortr-method', if method != 'identical' then method)
+      @$rows = sortr_instance.$el.find('tbody tr')
+      sortr_instance.$el.find('thead th').each(@parseColumn, [@])
+    parseColumn: (tp) ->
+      $th = $(@)
+      prev_value = false
+      tp.types = {}
+      tp.$rows.each (i, v) ->
+        $td = $(v).children().eq($th.index())
+        sortby = $td.data('sortr-sortby')
+        value = if sortby then "#{sortby}".toLowerCase() else $td.text().toLowerCase()
+        if !value
+          if $td.find(":checkbox").length
+            value = $td.find(":checkbox").prop("checked")
+          else if $td.find("input").length
+            value = $td.find("input").val().toLowerCase()
+        if !prev_value then prev_value = value
+        $td.data('sortr-value', value)
+        tp.check('numeric', value)
+        tp.check('identical', value, prev_value)
+        tp.check('boolean', value)
+        prev_value = value
+        true
+      method = tp.detectMethod()
+      if method is 'numeric' then tp.sanitizeAllNumbers(tp.$rows, $th.index())
+      $th.data('sortr-method', if method != 'identical' then method)
     check: (type, val, prev_val) ->
       if @types[type] is false then return
       @types[type] = switch type
