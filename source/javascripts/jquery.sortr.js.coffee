@@ -10,11 +10,12 @@
     beforeSort: $.noop
     afterSort: $.noop
     class_cache: []
+    numeric_filter: /[$%º¤¥£¢\,]/
     applyClass: ($th, dir) ->
       $th.parent().children().removeClass("#{@name}-asc #{@name}-desc")
       $th.addClass("#{@name}-#{dir}")
     build: ->
-      table_parser.parse(@$el)
+      table_parser.parse(@)
       @sortInitialColumn()
       @$el
     cacheClasses: ->
@@ -33,7 +34,7 @@
       s = $(@).data('sortr')
       $th = s.$el.find(".#{sortr.name}-asc, .#{sortr.name}-desc")
       dir = if $th.hasClass("#{sortr.name}-asc") then 'asc' else 'desc'
-      table_parser.parse(s.$el)
+      table_parser.parse(s)
       s.sortByColumn($th, dir)
     sortByColumn: ($th, dir) ->
       @beforeSort.apply(@$el)
@@ -69,8 +70,10 @@
       @$el.on("click.sortr", "th", (e) => @sortByColumn($(e.target)))
 
   table_parser =
-    parse: ($table) ->
+    parse: (sortr_instance) ->
       tp = @
+      @numeric_filter = sortr_instance.numeric_filter
+      $table = sortr_instance.$el
       $rows = $table.find('tbody tr')
       $table.find('thead th').each ->
         $th = $(@)
@@ -112,7 +115,7 @@
       method
     sanitizeNumber: (val) ->
       if typeof val != "boolean"
-        val.replace(/[$%º¤¥£¢\,]/, '')
+        val.replace(@numeric_filter, '')
     sanitizeAllNumbers: ($rows, idx) ->
       tp = @
       $rows.each ->

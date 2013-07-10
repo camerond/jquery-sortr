@@ -203,6 +203,18 @@
       new_classes.push($(this).hasClass('alt'))
     deepEqual(new_classes, moved_classes, 'classes move with rows')
 
+  test "it allows overrides to the non-numeric character filter", ->
+    $t = table.init()
+    numbers = ['43','@23', '12', '84']
+    sorted_numbers = ['84', '43', '@23', '12']
+    $th = table.addColumn('number', numbers)
+    $t.sortr(
+      numeric_filter: /@/
+    )
+    table.checkColumnType($th, 'numeric')
+    $th.click()
+    deepEqual(table.getColumnContents('number'), sorted_numbers, 'sorts numbers ignoring `F`')
+
   module "Methods"
 
   test "refresh", ->
