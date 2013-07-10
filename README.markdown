@@ -1,6 +1,6 @@
 # JQuery Sortr
 
-A smart, minimal, clean jQuery table sorter. Fully unit tested with QUnit. Pagination not supported. Sortr automatically detects alphabetical, numeric, date (via Javascript date parsing), and boolean column types.
+A smart, minimal, clean jQuery table sorter that autodetects most content.
 
 ## Usage
 
@@ -10,22 +10,27 @@ A smart, minimal, clean jQuery table sorter. Fully unit tested with QUnit. Pagin
 
 ### Column Detection & Default Direction
 
-Sortr detects the content type of a column automatically as either alphabetical, date, numeric, or boolean. You can specify descending or ascending defaults for each sort type. The following are auto-detected as boolean: checkboxes, strings of 'yes', 'no', 'true', and 'false', and a column where all the values are either identical or nonexistent (i.e. a column with 'X' or ''). These are configurable separately in the options hash as `bool`, `checkbox` and `blanks`, respectively:
+Sortr detects the content type of a column automatically as either alphabetical, numeric, or boolean. These columns are detecteda s boolean:
 
-    default_sort: {
+  - Columns that contain cells with only checkboxes
+  - Columns that contain only either empty cells or the same value (e.g. "yes", "yes", "")
+
+You can set the initial sort direction of a column either by the options hash (for all columns of that type) or by adding a `data-sortr-initial-sort` value of `asc` or `desc` to a specific column's `<th>` element.
+
+    default_sort:
       alpha: 'asc',
-      date: 'desc',
       numeric: 'desc',
-      bool: 'desc',
-      checkbox: 'desc',
-      blanks: 'desc'
-    }
+      bool: 'desc'
 
 ### Sorting by Custom Values
 
 If you'd like to sort by a custom value rather than the contents of a table cell (e.g. the column is a relative date but you'd like to sort by the UTC date), just add the value that you'd prefer to sort by as a `date-sortr-sortby` attribute. For example:
 
     <td data-sortr-sortby='849398400000'>5 minutes ago</td>
+
+### Sorting by input values
+
+If a table cell contains only an `<input>` element, Sortr will detect & sort by the value of that element.
 
 ### Ignoring Columns
 
@@ -38,14 +43,12 @@ You can ignore any columns:
 
 ### Specifying Initial Sorting
 
-You can specify the initial sort of the table either through the options hash ...
+Just give the appropriate `<th>` an attribute of `data-sortr-default` and Sortr will sort by that column on initialization.
 
-    by: {
-      '#name'
-      // or any selector that matches the <th> element that you want to automatically sort by
-    }
 
-... or by just giving the appropriate `<th>` element a class of `sortr-default`.
+### Refresh
+
+If you modify the table contents client-side, call `$your_table.sortr('refresh')` to re-parse.
 
 ### Custom Booleans
 
@@ -59,6 +62,10 @@ You can set custom boolean values. Right now these are just preset arrays so if 
       'no',
       'false'
     ]
+
+### Custom Non-numeric Character Filters
+
+If you want to ignore specific characters in numeric columns (for example, currency or temperature symbols), pass a `numeric_filter` property a literal regex. Sortr currently defaults to `/[$%º¤¥£¢\,]/`
 
 ### Etc.
 
