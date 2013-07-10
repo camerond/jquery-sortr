@@ -14,10 +14,6 @@
     applyClass: ($th, dir) ->
       $th.parent().children().removeClass("#{@name}-asc #{@name}-desc")
       $th.addClass("#{@name}-#{dir}")
-    build: ->
-      table_parser.parse(@)
-      @sortInitialColumn()
-      @$el
     cacheClasses: ->
       s = @
       s.class_cache = []
@@ -66,7 +62,8 @@
         $(@).children().eq(idx).data('sortr-value') == ''
       $rows.detach().toArray()
     init: ->
-      @build()
+      table_parser.parse(@)
+      @sortInitialColumn()
       @$el.on("click.sortr", "th", (e) => @sortByColumn($(e.target)))
 
   table_parser =
