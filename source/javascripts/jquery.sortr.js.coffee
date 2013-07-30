@@ -29,7 +29,7 @@
     name: 'sortr'
     initial_sort:
       alpha: 'asc'
-      boolean: 'desc'
+      bool: 'desc'
       numeric: 'desc'
     move_classes: false
     beforeSort: $.noop
@@ -113,7 +113,7 @@
         $td.data('sortr-value', value)
         tp.check('numeric', value)
         tp.check('identical', value, prev_value)
-        tp.check('boolean', value)
+        tp.check('bool', value)
         prev_value = value
         true
       method = tp.detectMethod()
@@ -126,13 +126,13 @@
           @isNumeric(val)
         when 'identical'
           val == prev_val
-        when 'boolean'
+        when 'bool'
           typeof val == "boolean"
     detectMethod: ->
       method = 'alpha'
       if @types.numeric != false then method = 'numeric'
       if @types.identical != false then method = 'identical'
-      if @types.boolean != false then method = 'boolean'
+      if @types.bool != false then method = 'bool'
       method
     sanitizeNumber: (val) ->
       if typeof val != "boolean"
@@ -158,7 +158,7 @@
       i = $(a).children().eq(row_sorter.idx).data('sortr-value')
       j = $(b).children().eq(row_sorter.idx).data('sortr-value')
       i.localeCompare(j)
-    boolean: (a, b) ->
+    bool: (a, b) ->
       i = $(a).children().eq(row_sorter.idx).data('sortr-value')
       j = $(b).children().eq(row_sorter.idx).data('sortr-value')
       row_sorter.output(i > j, i < j, i == j)

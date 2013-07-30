@@ -107,7 +107,7 @@
     sorted = [true, true, false, false, false]
     $th = table.addColumn('checkboxes', unsorted, true)
     $t.sortr()
-    table.checkColumnType($th, "boolean")
+    table.checkColumnType($th, "bool")
     $th.click()
     cell_values = []
     $t.find('td').each ->
