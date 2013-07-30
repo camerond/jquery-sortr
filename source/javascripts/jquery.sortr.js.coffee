@@ -132,9 +132,11 @@
     alpha: (a, b) ->
       i = $(a).children().eq(row_sorter.idx).data('sortr-value')
       j = $(b).children().eq(row_sorter.idx).data('sortr-value')
-      row_sorter.output(i > j, i < j, i == j)
+      i.localeCompare(j)
     boolean: (a, b) ->
-      row_sorter.alpha(a, b)
+      i = $(a).children().eq(row_sorter.idx).data('sortr-value')
+      j = $(b).children().eq(row_sorter.idx).data('sortr-value')
+      row_sorter.output(i > j, i < j, i == j)
     numeric: (a, b) ->
       i = parseFloat($(a).children().eq(row_sorter.idx).data('sortr-value'))
       j = parseFloat($(b).children().eq(row_sorter.idx).data('sortr-value'))
