@@ -27,7 +27,7 @@
 
   sortr =
     name: 'sortr'
-    initial_sort:
+    initial_dir:
       alpha: 'asc'
       bool: 'desc'
       numeric: 'desc'
@@ -70,7 +70,7 @@
       else
         empty_rows = @stripEmptyRows($table, idx)
         sorted = row_sorter.process(method, $table.find('tbody tr').detach().toArray(), idx)
-        dir = dir or $th.data('sortr-initial-sort') or @initial_sort[method]
+        dir = dir or $th.data('sortr-initial-dir') or @initial_dir[method]
         if dir is 'desc' then sorted.reverse()
         @applyClass($th, dir)
         if empty_rows.length then sorted.push.apply(sorted, empty_rows)

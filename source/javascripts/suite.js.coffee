@@ -169,7 +169,7 @@
     $t = table.init()
     dataset = table.generateAlphaColumn()
     $t.sortr(
-      initial_sort:
+      initial_dir:
         alpha: 'desc'
     )
     table.checkColumnType(dataset.$th, 'alpha')
@@ -180,7 +180,7 @@
   test "it allows overrides to default sorting direction through data attribute", ->
     $t = table.init()
     dataset = table.generateAlphaColumn()
-    dataset.$th.attr('data-sortr-initial-sort', 'desc')
+    dataset.$th.attr('data-sortr-initial-dir', 'desc')
     $t.sortr()
     table.checkColumnType(dataset.$th, 'alpha')
     dataset.$th.click()

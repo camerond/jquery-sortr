@@ -1,0 +1,9 @@
+# Changelog
+
+## 0.5.2
+
+- change `data-sortr-inital-sort` to `data-sortr-initial-dir` to alleviate occasional confusion
+
+## < 0.5.1
+
+- should have had a changelog
