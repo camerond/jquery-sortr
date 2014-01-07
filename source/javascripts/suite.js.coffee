@@ -80,7 +80,7 @@
     $t = table.init()
     dataset = table.generateAlphaColumn()
     $empty_row = $("<tr />").append($("<td />"))
-    $t.find("td").eq(1).after($empty_row)
+    $t.find("tr").eq(0).after($empty_row)
     $t.sortr()
     dataset.$th.click()
     dataset.sorted.push("")
@@ -186,6 +186,17 @@
     dataset.$th.click()
     deepEqual(table.getColumnContents('latin'), dataset.sorted.reverse(), 'sorts alpha descending')
     equal(dataset.$th.attr('class'), 'sortr-desc', 'applies sortr-desc class')
+
+  test "it sorts empty rows to the top if 'prepend_empty' is set to true", ->
+    $t = table.init()
+    dataset = table.generateAlphaColumn()
+    $empty_row = $("<tr />").append($("<td />"))
+    $t.find("td").eq(1).after($empty_row)
+    $t.find("th").attr('data-sortr-prepend-empty', 'true')
+    $t.sortr()
+    dataset.$th.click()
+    dataset.sorted.unshift("")
+    deepEqual(table.getColumnContents('latin'), dataset.sorted, 'puts empty cell at beginning')
 
   test "it moves classes with the rows if move_classes is set to true", ->
     $t = table.init()

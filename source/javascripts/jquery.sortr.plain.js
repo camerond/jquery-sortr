@@ -1,7 +1,6 @@
-
-// // jQuery Sortr Plugin
+// jQuery Sortr Plugin
 // http://github.com/camerond/jquery-sortr
-// version 0.5.1
+// version 0.5.3
 //
 // Copyright (c) 2012 Cameron Daigle, http://camerondaigle.com
 //
@@ -30,7 +29,7 @@
 
     sortr = {
       name: 'sortr',
-      initial_sort: {
+      initial_dir: {
         alpha: 'asc',
         bool: 'desc',
         numeric: 'desc'
@@ -40,6 +39,7 @@
       afterSort: $.noop,
       class_cache: [],
       numeric_filter: /[$%ÂºÂ¤Â¥Â£Â¢\,]/,
+      prepend_empty: false,
       applyClass: function($th, dir) {
         $th.parent().children().removeClass("" + this.name + "-asc " + this.name + "-desc");
         return $th.addClass("" + this.name + "-" + dir);
@@ -92,13 +92,17 @@
         } else {
           empty_rows = this.stripEmptyRows($table, idx);
           sorted = row_sorter.process(method, $table.find('tbody tr').detach().toArray(), idx);
-          dir = dir || $th.data('sortr-initial-sort') || this.initial_sort[method];
+          dir = dir || $th.data('sortr-initial-dir') || this.initial_dir[method];
           if (dir === 'desc') {
             sorted.reverse();
           }
           this.applyClass($th, dir);
           if (empty_rows.length) {
-            sorted.push.apply(sorted, empty_rows);
+            if ($th.data('sortr-prepend-empty')) {
+              sorted.unshift.apply(sorted, empty_rows);
+            } else {
+              sorted.push.apply(sorted, empty_rows);
+            }
           }
         }
         $table.find('tbody').append($(sorted));

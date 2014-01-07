@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.3
+
+- add `data-prepend-empty` support
+
 ## 0.5.2
 
 - change `data-sortr-inital-sort` to `data-sortr-initial-dir` to alleviate occasional confusion

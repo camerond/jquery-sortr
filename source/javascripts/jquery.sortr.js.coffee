@@ -1,6 +1,6 @@
 # jQuery Sortr Plugin
 # http://github.com/camerond/jquery-sortr
-# version 0.5.1
+# version 0.5.3
 #
 # Copyright (c) 2012 Cameron Daigle, http://camerondaigle.com
 #
@@ -36,6 +36,7 @@
     afterSort: $.noop
     class_cache: []
     numeric_filter: /[$%º¤¥£¢\,]/
+    prepend_empty: false
     applyClass: ($th, dir) ->
       $th.parent().children().removeClass("#{@name}-asc #{@name}-desc")
       $th.addClass("#{@name}-#{dir}")
@@ -73,7 +74,11 @@
         dir = dir or $th.data('sortr-initial-dir') or @initial_dir[method]
         if dir is 'desc' then sorted.reverse()
         @applyClass($th, dir)
-        if empty_rows.length then sorted.push.apply(sorted, empty_rows)
+        if empty_rows.length
+          if $th.data('sortr-prepend-empty')
+            sorted.unshift.apply(sorted, empty_rows)
+          else
+            sorted.push.apply(sorted, empty_rows)
       $table.find('tbody').append($(sorted))
       @restoreClasses()
       @afterSort.apply(@$el)

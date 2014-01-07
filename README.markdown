@@ -63,6 +63,10 @@ For your styling pleasure, Sortr automatically applies `sortr-asc` or `sortr-des
 
 By default, Sortr does __not__ move table row classes along with their content, e.g. if your first row has a class of `.first`, it'll keep that class after any sorting takes place. To move row classes along with their content, set `move_classes` to `true`.
 
+#### Sorting Empty Cells
+
+By default, empty cells are sorted at the end of a given column. To prepend empty cells instead, put a `sortr-prepend-empty` data attribute on the appropriate `<th>` element.
+
 ## Methods
 
 #### Refresh
