@@ -153,7 +153,7 @@
 
           $td = $(v).children().eq($th.index());
           sortby = $td.data('sortr-sortby');
-          value = sortby ? ("" + sortby).toLowerCase() : $td.text().toLowerCase();
+          value = sortby != null ? ("" + sortby).toLowerCase() : $td.text().toLowerCase();
           if (!value) {
             if ($td.find(":checkbox").length) {
               value = $td.find(":checkbox").prop("checked");

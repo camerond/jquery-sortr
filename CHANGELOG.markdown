@@ -3,6 +3,7 @@
 ## 0.5.3
 
 - add `data-prepend-empty` support
+- handle falsy values for data-sortr-sortby
 
 ## 0.5.2
 
