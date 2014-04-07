@@ -188,7 +188,7 @@
         $(@).data(sortr.name, plugin_instance)
         plugin_instance.init()
     else
-      $.error('Method #{method} does not exist on jQuery. #{sortr.name}');
-    return $els;
+      $.error('Method #{method} does not exist on jQuery. #{sortr.name}')
+    return $els
 
 )(jQuery)
