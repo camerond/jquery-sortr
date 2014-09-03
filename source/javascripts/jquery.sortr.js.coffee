@@ -109,6 +109,7 @@
         $td = $(v).children().eq($th.index())
         sortby = $td.data('sortr-sortby')
         value = if sortby? then "#{sortby}".toLowerCase() else $td.text().toLowerCase()
+        value = $.trim(value)
         if !value
           if $td.find(":checkbox").length
             value = $td.find(":checkbox").prop("checked")
