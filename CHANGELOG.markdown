@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.4
+
+- add mysteriously missing custom boolean support & improve boolean detection
+- add more prepend-empty options (separate columns, universal option)
+
 ## 0.5.3
 
 - add `data-prepend-empty` support

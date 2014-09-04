@@ -1,6 +1,6 @@
 // jQuery Sortr Plugin
 // http://github.com/camerond/jquery-sortr
-// version 0.5.3
+// version 0.5.4
 //
 // Copyright (c) 2012 Cameron Daigle, http://camerondaigle.com
 //
@@ -40,6 +40,8 @@
       class_cache: [],
       numeric_filter: /[$%ÂºÂ¤Â¥Â£Â¢\,]/,
       prepend_empty: false,
+      bool_true: ["true", "yes"],
+      bool_false: ["false", "no"],
       applyClass: function($th, dir) {
         $th.parent().children().removeClass("" + this.name + "-asc " + this.name + "-desc");
         return $th.addClass("" + this.name + "-" + dir);
@@ -98,7 +100,7 @@
           }
           this.applyClass($th, dir);
           if (empty_rows.length) {
-            if ($th.data('sortr-prepend-empty')) {
+            if (this.prepend_empty || $th.attr('data-sortr-prepend-empty')) {
               sorted.unshift.apply(sorted, empty_rows);
             } else {
               sorted.push.apply(sorted, empty_rows);
@@ -129,6 +131,9 @@
       init: function() {
         var _this = this;
 
+        if (this.$el.attr('data-sortr-prepend-empty')) {
+          this.prepend_empty = this.$el.attr('data-sortr-prepend-empty');
+        }
         table_parser.parse(this);
         this.sortInitialColumn();
         return this.$el.on("click.sortr", "th", function(e) {
@@ -140,6 +145,7 @@
       parse: function(sortr_instance) {
         this.numeric_filter = sortr_instance.numeric_filter;
         this.$rows = sortr_instance.$el.find('tbody tr');
+        this.bools = sortr_instance.bool_true.concat(sortr_instance.bool_false);
         return sortr_instance.$el.find('thead th').each(this.parseColumn, [this]);
       },
       parseColumn: function(tp) {
@@ -154,6 +160,7 @@
           $td = $(v).children().eq($th.index());
           sortby = $td.data('sortr-sortby');
           value = sortby != null ? ("" + sortby).toLowerCase() : $td.text().toLowerCase();
+          value = $.trim(value);
           if (!value) {
             if ($td.find(":checkbox").length) {
               value = $td.find(":checkbox").prop("checked");
@@ -188,7 +195,7 @@
             case 'identical':
               return val === prev_val;
             case 'bool':
-              return typeof val === "boolean";
+              return typeof val === "boolean" || $.inArray(val, this.bools) !== -1;
           }
         }).call(this);
       },
