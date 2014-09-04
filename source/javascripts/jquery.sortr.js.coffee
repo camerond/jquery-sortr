@@ -37,6 +37,8 @@
     class_cache: []
     numeric_filter: /[$%º¤¥£¢\,]/
     prepend_empty: false
+    bool_true: ["true", "yes"]
+    bool_false: ["false", "no"]
     applyClass: ($th, dir) ->
       $th.parent().children().removeClass("#{@name}-asc #{@name}-desc")
       $th.addClass("#{@name}-#{dir}")
@@ -102,6 +104,7 @@
     parse: (sortr_instance) ->
       @numeric_filter = sortr_instance.numeric_filter
       @$rows = sortr_instance.$el.find('tbody tr')
+      @bools = sortr_instance.bool_true.concat sortr_instance.bool_false
       sortr_instance.$el.find('thead th').each(@parseColumn, [@])
     parseColumn: (tp) ->
       $th = $(@)
@@ -135,7 +138,8 @@
         when 'identical'
           val == prev_val
         when 'bool'
-          typeof val == "boolean"
+          typeof val == "boolean" || $.inArray(val, @bools) != -1
+
     detectMethod: ->
       method = 'alpha'
       if @types.numeric != false then method = 'numeric'

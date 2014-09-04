@@ -69,8 +69,6 @@ By default, empty cells are sorted at the end of a given column. To prepend empt
 
 If you want the entire table to prepend empty cells on sort, either pass `prepend_empty: true` as an option to the `.sortr()` method call, or add a `data-sortr-prepend-empty`attribute on the `<table>`.
 
-## Methods
-
 #### Refresh
 
 If you modify the table contents client-side, call `$your_table.sortr('refresh')` to re-parse.
@@ -78,8 +76,6 @@ If you modify the table contents client-side, call `$your_table.sortr('refresh')
 #### Callbacks
 
 There are `beforeSort()` and `afterSort()` callbacks - for example, perhaps you want to keep a row pinned to the top of a table, in which case you'd detach it beforeSort, and prepend it afterSort.
-
-## Other Options
 
 #### Custom Booleans
 

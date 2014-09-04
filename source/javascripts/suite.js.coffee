@@ -97,6 +97,26 @@
     $th.click()
     deepEqual(table.getColumnContents('latin'), dataset.unsorted, 'does not reverse sort on identical column')
 
+  test "it detects & sorts boolean values", ->
+    unsorted = ["true", "true", "false", "true", "false"]
+    sorted = ["true", "true", "true", "false", "false"]
+    $t = table.init()
+    $th = table.addColumn('booleans', unsorted, true)
+    $t.sortr()
+    table.checkColumnType($th, "bool")
+    $th.click()
+    deepEqual(table.getColumnContents('booleans'), sorted, 'sorts booleans with true at top by default')
+
+  test "it detects & sorts custom boolean values", ->
+    unsorted = ["yep", "yep", "nope", "yep", "nope"]
+    sorted = ["yep", "yep", "yep", "nope", "nope"]
+    $t = table.init()
+    $th = table.addColumn('booleans', unsorted, true)
+    $t.sortr({ bool_true: ["yep"], bool_false: ["nope"]})
+    table.checkColumnType($th, "bool")
+    $th.click()
+    deepEqual(table.getColumnContents('booleans'), sorted, 'sorts booleans with true at top by default')
+
   test "it detects & sorts by checkbox value", ->
     checkboxBuilder = (vals) ->
       checks = []
