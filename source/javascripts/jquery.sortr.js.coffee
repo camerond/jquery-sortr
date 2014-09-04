@@ -75,7 +75,7 @@
         if dir is 'desc' then sorted.reverse()
         @applyClass($th, dir)
         if empty_rows.length
-          if $th.data('sortr-prepend-empty')
+          if @prepend_empty || $th.attr('data-sortr-prepend-empty')
             sorted.unshift.apply(sorted, empty_rows)
           else
             sorted.push.apply(sorted, empty_rows)
@@ -92,6 +92,8 @@
         $(@).children().eq(idx).data('sortr-value') == ''
       $rows.detach().toArray()
     init: ->
+      if @$el.attr('data-sortr-prepend-empty')
+        @prepend_empty = @$el.attr('data-sortr-prepend-empty')
       table_parser.parse(@)
       @sortInitialColumn()
       @$el.on("click.sortr", "th", (e) => @sortByColumn($(e.target)))

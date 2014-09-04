@@ -67,6 +67,8 @@ By default, Sortr does __not__ move table row classes along with their content, 
 
 By default, empty cells are sorted at the end of a given column. To prepend empty cells instead, put a `sortr-prepend-empty` data attribute on the appropriate `<th>` element.
 
+If you want the entire table to prepend empty cells on sort, either pass `prepend_empty: true` as an option to the `.sortr()` method call, or add a `data-sortr-prepend-empty`attribute on the `<table>`.
+
 ## Methods
 
 #### Refresh
