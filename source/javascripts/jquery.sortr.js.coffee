@@ -1,6 +1,6 @@
 # jQuery Sortr Plugin
 # http://github.com/camerond/jquery-sortr
-# version 0.5.4
+# version 0.5.5
 #
 # Copyright (c) 2012 Cameron Daigle, http://camerondaigle.com
 #
@@ -93,24 +93,34 @@
       $rows = $table.find('tr').filter ->
         $(@).children().eq(idx).data('sortr-value') == ''
       $rows.detach().toArray()
+    reparseCheckboxColumn: (e) ->
+      idx = $(e.target).closest('td').index()
+      $th = $(e.target).closest('table').find('th').eq(idx)
+      $th.removeClass("sortr-asc sortr-desc")
+      instance = $(e.target).closest('table').data('sortr')
+      table_parser.parseColumn($th)
     init: ->
+      s = @
       if @$el.attr('data-sortr-prepend-empty')
         @prepend_empty = @$el.attr('data-sortr-prepend-empty')
-      table_parser.parse(@)
+      table_parser.parse(s)
       @sortInitialColumn()
       @$el.on("click.sortr", "th", (e) => @sortByColumn($(e.target)))
+      @$el.on("change.sortr", "td :checkbox", @reparseCheckboxColumn)
 
   table_parser =
     parse: (sortr_instance) ->
+      tp = @
       @numeric_filter = sortr_instance.numeric_filter
-      @$rows = sortr_instance.$el.find('tbody tr')
       @bools = sortr_instance.bool_true.concat sortr_instance.bool_false
-      sortr_instance.$el.find('thead th').each(@parseColumn, [@])
-    parseColumn: (tp) ->
-      $th = $(@)
+      sortr_instance.$el.find('thead th').each ->
+        tp.parseColumn($(@))
+    parseColumn: ($th) ->
+      tp = @
       prev_value = false
       tp.types = {}
-      tp.$rows.each (i, v) ->
+      $rows = $th.closest('table').find('tbody tr')
+      $rows.each (i, v) ->
         $td = $(v).children().eq($th.index())
         sortby = $td.data('sortr-sortby')
         value = if sortby? then "#{sortby}".toLowerCase() else $td.text().toLowerCase()
@@ -128,7 +138,7 @@
         prev_value = value
         true
       method = tp.detectMethod()
-      if method is 'numeric' then tp.sanitizeAllNumbers(tp.$rows, $th.index())
+      if method is 'numeric' then tp.sanitizeAllNumbers($rows, $th.index())
       $th.data('sortr-method', if method != 'identical' then method)
     check: (type, val, prev_val) ->
       if @types[type] is false then return

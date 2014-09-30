@@ -133,6 +133,13 @@
     $t.find('td').each ->
       cell_values.push(!!$(this).find(":checkbox").prop("checked"))
     deepEqual(cell_values, sorted, 'sorts checkboxes with checked at top by default')
+    $t.find('tbody :checkbox').eq(0).prop('checked', false).change()
+    $t.find('tbody :checkbox').eq(4).prop('checked', true).change()
+    $th.click()
+    cell_values = []
+    $t.find('td').each ->
+      cell_values.push(!!$(this).find(":checkbox").prop("checked"))
+    deepEqual(cell_values, sorted, 'sorts checkboxes after values of checkboxes change')
 
   test "it detects & sorts by value on input", ->
     inputBuilder = (vals) ->

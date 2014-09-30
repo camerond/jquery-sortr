@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.5
+
+- re-parse sort properly for checkbox columns each time a checkbox state is changed
+
 ## 0.5.4
 
 - add mysteriously missing custom boolean support & improve boolean detection

@@ -7,7 +7,7 @@
     "sorter",
     "tablesorter"
   ],
-  "version": "0.5.4",
+  "version": "0.5.5",
   "author": {
     "name": "Cameron Daigle",
     "email": "me@camerondaigle.com",
@@ -16,7 +16,7 @@
   "licenses": [
     {
       "type": "MIT",
-      "url": "https://github.com/camerond/jquery-minical/blob/master/views/coffeescript/jquery.minical.coffee"
+      "url": "https://github.com/camerond/jquery-sortr/blob/master/source/javascripts/jquery.sortr.js.coffee"
     }
   ],
   "homepage": "http://github.com/camerond/jquery-sortr",
