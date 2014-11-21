@@ -36,6 +36,8 @@ You can set the initial sort direction of a column either by the options object 
 
 Just give the appropriate `<th>` an attribute of `data-sortr-default` and Sortr will sort by that column on initialization.
 
+You can give second `<th>` an attribute of `data-sortr-fallback` and Sortr will attempt to sort by that column if the `data-sortr-default` column isn't sortable (for example, if it's all identical values).
+
 #### Sorting by Custom Values
 
 If you'd like to sort by a custom value rather than the contents of a table cell (e.g. the column is a relative date but you'd like to sort by the UTC date), just add the value that you'd prefer to sort by as a `date-sortr-sortby` attribute on your `<td>`. For example:
