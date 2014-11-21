@@ -192,6 +192,15 @@
     $t.sortr()
     deepEqual(table.getColumnContents('latin'), dataset.sorted, 'sorts data-sortr-default column by default')
 
+  test "it allows a fallback sorting direction by the 'sortr-fallback' data attribute", ->
+    $t = table.init()
+    $th = table.addColumn 'identical', "foo foo foo foo foo".split(" ")
+    dataset = table.generateAlphaColumn()
+    $t.find('th').eq(0).attr('data-sortr-default', true)
+    $t.find('th').eq(1).attr('data-sortr-fallback', true)
+    $t.sortr()
+    deepEqual(table.getColumnContents('latin'), dataset.sorted, "sorts data-sortr-fallback column if data-sortr-default column isn't sortable")
+
   test "it allows overrides to default sorting direction through option", ->
     $t = table.init()
     dataset = table.generateAlphaColumn()
