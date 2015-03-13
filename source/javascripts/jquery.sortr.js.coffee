@@ -23,193 +23,189 @@
 # OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
 # WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-(($) ->
-
-  sortr =
-    class_name: 'sortr'
-    initial_dir:
-      alpha: 'asc'
-      bool: 'desc'
-      numeric: 'desc'
-    move_classes: false
-    beforeSort: $.noop
-    afterSort: $.noop
-    class_cache: []
-    numeric_filter: /[$%º¤¥£¢\,]/
-    prepend_empty: false
-    bool_true: ["true", "yes"]
-    bool_false: ["false", "no"]
-    applyClass: ($th, dir) ->
-      $th.parent().children().removeClass("#{@class_name}-asc #{@class_name}-desc")
-      $th.addClass("#{@class_name}-#{dir}")
-    cacheClasses: ->
-      s = @
-      s.class_cache = []
-      if !@move_classes
-        s.$el.find('tbody tr').each ->
-          s.class_cache.push($(this).attr('class'))
-          $(this).removeClass()
-    restoreClasses: ->
-      s = @
-      if s.class_cache.length
-        s.$el.find('tbody tr').each (idx) ->
-          $(this).addClass(s.class_cache[idx])
-    refresh: ->
-      s = $(@).data('sortr')
-      $th = s.$el.find(".#{sortr.class_name}-asc, .#{sortr.class_name}-desc")
-      dir = if $th.hasClass("#{sortr.class_name}-asc") then 'asc' else 'desc'
-      table_parser.parse(s)
-      s.sortByColumn($th, dir)
-    sortByColumn: ($th, dir) ->
-      @beforeSort.apply(@$el)
-      @cacheClasses()
-      idx = $th.index()
-      $table = $th.closest('table')
-      method = $th.data('sortr-method')
-      if !method then return
-      if !dir and $th.is(".#{@class_name}-asc, .#{@class_name}-desc")
-        sorted = $table.find('tbody tr').detach().toArray().reverse()
-        @applyClass($th, if $th.hasClass("#{@class_name}-asc") then 'desc' else 'asc')
-      else
-        empty_rows = @stripEmptyRows($table, idx)
-        sorted = row_sorter.process(method, $table.find('tbody tr').detach().toArray(), idx)
-        dir = dir or $th.data('sortr-initial-dir') or @initial_dir[method]
-        if dir is 'desc' then sorted.reverse()
-        @applyClass($th, dir)
-        if empty_rows.length
-          if @prepend_empty || $th.attr('data-sortr-prepend-empty')
-            sorted.unshift.apply(sorted, empty_rows)
-          else
-            sorted.push.apply(sorted, empty_rows)
-      $table.find('tbody').append($(sorted))
-      @restoreClasses()
-      @afterSort.apply(@$el)
-      $table
-    sortInitialColumn: ->
-      $initial = @$el.find('[data-sortr-default]')
-      if !$initial.data('sortr-method')
-        $initial = @$el.find('[data-sortr-fallback]')
-      return unless $initial.length
-      @sortByColumn($initial.first())
-    stripEmptyRows: ($table, idx) ->
-      $rows = $table.find('tr').filter ->
-        $(@).children().eq(idx).data('sortr-value') == ''
-      $rows.detach().toArray()
-    reparseCheckboxColumn: (e) ->
-      idx = $(e.target).closest('td').index()
-      $th = $(e.target).closest('table').find('th').eq(idx)
-      $th.removeClass("sortr-asc sortr-desc")
-      instance = $(e.target).closest('table').data('sortr')
-      table_parser.parseColumn($th)
-    init: ->
-      s = @
-      if @$el.attr('data-sortr-prepend-empty')
-        @prepend_empty = @$el.attr('data-sortr-prepend-empty')
-      table_parser.parse(s)
-      @sortInitialColumn()
-      @$el.on("click.sortr", "th", (e) => @sortByColumn($(e.target)))
-      @$el.on("change.sortr", "td :checkbox", @reparseCheckboxColumn)
-
-  table_parser =
-    parse: (sortr_instance) ->
-      tp = @
-      @numeric_filter = sortr_instance.numeric_filter
-      @bools = sortr_instance.bool_true.concat sortr_instance.bool_false
-      sortr_instance.$el.find('thead th').each ->
-        tp.parseColumn($(@))
-    parseColumn: ($th) ->
-      tp = @
-      prev_value = false
-      tp.types = {}
-      $rows = $th.closest('table').find('tbody tr')
-      $rows.each (i, v) ->
-        $td = $(v).children().eq($th.index())
-        sortby = $td.data('sortr-sortby')
-        value = if sortby? then "#{sortby}".toLowerCase() else $td.text().toLowerCase()
-        value = $.trim(value)
-        if !value
-          if $td.find(":checkbox").length
-            value = $td.find(":checkbox").prop("checked")
-          else if $td.find("input").length
-            value = $td.find("input").val().toLowerCase()
-        if !prev_value then prev_value = value
-        $td.data('sortr-value', value)
-        tp.check('numeric', value)
-        tp.check('identical', value, prev_value)
-        tp.check('bool', value)
-        prev_value = value
-        true
-      method = tp.detectMethod()
-      if method is 'numeric' then tp.sanitizeAllNumbers($rows, $th.index())
-      $th.data('sortr-method', if method != 'identical' then method)
-    check: (type, val, prev_val) ->
-      if @types[type] is false then return
-      @types[type] = switch type
-        when 'numeric'
-          @isNumeric(val)
-        when 'identical'
-          val == prev_val
-        when 'bool'
-          typeof val == "boolean" || $.inArray(val, @bools) != -1
-
-    detectMethod: ->
-      method = 'alpha'
-      if @types.numeric != false then method = 'numeric'
-      if @types.identical != false then method = 'identical'
-      if @types.bool != false then method = 'bool'
-      method
-    sanitizeNumber: (val) ->
-      if typeof val != "boolean"
-        val.replace(@numeric_filter, '')
-    sanitizeAllNumbers: ($rows, idx) ->
-      tp = @
-      $rows.each ->
-        $td = $(@).children().eq(idx)
-        $td.data('sortr-value', tp.sanitizeNumber($td.data('sortr-value')))
-    isNumeric: (val) ->
-      v = @sanitizeNumber(val)
-      !isNaN(parseFloat(v)) && isFinite(v)
-
-  row_sorter =
-    process: (method, rows, idx) ->
-      @idx = idx
-      rows.sort(@[method])
-    output: (positive, negative, neutral) ->
-      return 0 if neutral
-      return -1 if negative
-      return 1 if positive
-    alpha: (a, b) ->
-      i = $(a).children().eq(row_sorter.idx).data('sortr-value')
-      j = $(b).children().eq(row_sorter.idx).data('sortr-value')
-      i.localeCompare(j)
-    bool: (a, b) ->
-      i = $(a).children().eq(row_sorter.idx).data('sortr-value')
-      j = $(b).children().eq(row_sorter.idx).data('sortr-value')
-      row_sorter.output(i > j, i < j, i == j)
-    numeric: (a, b) ->
-      i = parseFloat($(a).children().eq(row_sorter.idx).data('sortr-value'))
-      j = parseFloat($(b).children().eq(row_sorter.idx).data('sortr-value'))
-      row_sorter.output(i > j, i < j, i == j)
-
-  $.fn.sortr = (opts) ->
-    $els = @
-    method = if $.isPlainObject(opts) or !opts then '' else opts
-    if method and sortr[method]
-      $els.each ->
-        $el = $(@)
-        sortr[method].apply($el, Array.prototype.slice.call(arguments, 1))
-    else if !method
-      $els.each ->
-        plugin_instance = $.extend(
-          true,
-          $el: $(@),
-          sortr,
-          opts
-        )
-        $(@).data("sortr", plugin_instance)
-        plugin_instance.init()
+sortr =
+  class_name: 'sortr'
+  initial_dir:
+    alpha: 'asc'
+    bool: 'desc'
+    numeric: 'desc'
+  move_classes: false
+  beforeSort: $.noop
+  afterSort: $.noop
+  class_cache: []
+  numeric_filter: /[$%º¤¥£¢\,]/
+  prepend_empty: false
+  bool_true: ["true", "yes"]
+  bool_false: ["false", "no"]
+  applyClass: ($th, dir) ->
+    $th.parent().children().removeClass("#{@class_name}-asc #{@class_name}-desc")
+    $th.addClass("#{@class_name}-#{dir}")
+  cacheClasses: ->
+    s = @
+    s.class_cache = []
+    if !@move_classes
+      s.$el.find('tbody tr').each ->
+        s.class_cache.push($(this).attr('class'))
+        $(this).removeClass()
+  restoreClasses: ->
+    s = @
+    if s.class_cache.length
+      s.$el.find('tbody tr').each (idx) ->
+        $(this).addClass(s.class_cache[idx])
+  refresh: ->
+    s = $(@).data('sortr')
+    $th = s.$el.find(".#{sortr.class_name}-asc, .#{sortr.class_name}-desc")
+    dir = if $th.hasClass("#{sortr.class_name}-asc") then 'asc' else 'desc'
+    table_parser.parse(s)
+    s.sortByColumn($th, dir)
+  sortByColumn: ($th, dir) ->
+    @beforeSort.apply(@$el)
+    @cacheClasses()
+    idx = $th.index()
+    $table = $th.closest('table')
+    method = $th.data('sortr-method')
+    if !method then return
+    if !dir and $th.is(".#{@class_name}-asc, .#{@class_name}-desc")
+      sorted = $table.find('tbody tr').detach().toArray().reverse()
+      @applyClass($th, if $th.hasClass("#{@class_name}-asc") then 'desc' else 'asc')
     else
-      $.error('Method #{method} does not exist on jQuery.')
-    return $els
+      empty_rows = @stripEmptyRows($table, idx)
+      sorted = row_sorter.process(method, $table.find('tbody tr').detach().toArray(), idx)
+      dir = dir or $th.data('sortr-initial-dir') or @initial_dir[method]
+      if dir is 'desc' then sorted.reverse()
+      @applyClass($th, dir)
+      if empty_rows.length
+        if @prepend_empty || $th.attr('data-sortr-prepend-empty')
+          sorted.unshift.apply(sorted, empty_rows)
+        else
+          sorted.push.apply(sorted, empty_rows)
+    $table.find('tbody').append($(sorted))
+    @restoreClasses()
+    @afterSort.apply(@$el)
+    $table
+  sortInitialColumn: ->
+    $initial = @$el.find('[data-sortr-default]')
+    if !$initial.data('sortr-method')
+      $initial = @$el.find('[data-sortr-fallback]')
+    return unless $initial.length
+    @sortByColumn($initial.first())
+  stripEmptyRows: ($table, idx) ->
+    $rows = $table.find('tr').filter ->
+      $(@).children().eq(idx).data('sortr-value') == ''
+    $rows.detach().toArray()
+  reparseCheckboxColumn: (e) ->
+    idx = $(e.target).closest('td').index()
+    $th = $(e.target).closest('table').find('th').eq(idx)
+    $th.removeClass("sortr-asc sortr-desc")
+    instance = $(e.target).closest('table').data('sortr')
+    table_parser.parseColumn($th)
+  init: ->
+    s = @
+    if @$el.attr('data-sortr-prepend-empty')
+      @prepend_empty = @$el.attr('data-sortr-prepend-empty')
+    table_parser.parse(s)
+    @sortInitialColumn()
+    @$el.on("click.sortr", "th", (e) => @sortByColumn($(e.target)))
+    @$el.on("change.sortr", "td :checkbox", @reparseCheckboxColumn)
 
-)(jQuery)
+table_parser =
+  parse: (sortr_instance) ->
+    tp = @
+    @numeric_filter = sortr_instance.numeric_filter
+    @bools = sortr_instance.bool_true.concat sortr_instance.bool_false
+    sortr_instance.$el.find('thead th').each ->
+      tp.parseColumn($(@))
+  parseColumn: ($th) ->
+    tp = @
+    prev_value = false
+    tp.types = {}
+    $rows = $th.closest('table').find('tbody tr')
+    $rows.each (i, v) ->
+      $td = $(v).children().eq($th.index())
+      sortby = $td.data('sortr-sortby')
+      value = if sortby? then "#{sortby}".toLowerCase() else $td.text().toLowerCase()
+      value = $.trim(value)
+      if !value
+        if $td.find(":checkbox").length
+          value = $td.find(":checkbox").prop("checked")
+        else if $td.find("input").length
+          value = $td.find("input").val().toLowerCase()
+      if !prev_value then prev_value = value
+      $td.data('sortr-value', value)
+      tp.check('numeric', value)
+      tp.check('identical', value, prev_value)
+      tp.check('bool', value)
+      prev_value = value
+      true
+    method = tp.detectMethod()
+    if method is 'numeric' then tp.sanitizeAllNumbers($rows, $th.index())
+    $th.data('sortr-method', if method != 'identical' then method)
+  check: (type, val, prev_val) ->
+    if @types[type] is false then return
+    @types[type] = switch type
+      when 'numeric'
+        @isNumeric(val)
+      when 'identical'
+        val == prev_val
+      when 'bool'
+        typeof val == "boolean" || $.inArray(val, @bools) != -1
+
+  detectMethod: ->
+    method = 'alpha'
+    if @types.numeric != false then method = 'numeric'
+    if @types.identical != false then method = 'identical'
+    if @types.bool != false then method = 'bool'
+    method
+  sanitizeNumber: (val) ->
+    if typeof val != "boolean"
+      val.replace(@numeric_filter, '')
+  sanitizeAllNumbers: ($rows, idx) ->
+    tp = @
+    $rows.each ->
+      $td = $(@).children().eq(idx)
+      $td.data('sortr-value', tp.sanitizeNumber($td.data('sortr-value')))
+  isNumeric: (val) ->
+    v = @sanitizeNumber(val)
+    !isNaN(parseFloat(v)) && isFinite(v)
+
+row_sorter =
+  process: (method, rows, idx) ->
+    @idx = idx
+    rows.sort(@[method])
+  output: (positive, negative, neutral) ->
+    return 0 if neutral
+    return -1 if negative
+    return 1 if positive
+  alpha: (a, b) ->
+    i = $(a).children().eq(row_sorter.idx).data('sortr-value')
+    j = $(b).children().eq(row_sorter.idx).data('sortr-value')
+    i.localeCompare(j)
+  bool: (a, b) ->
+    i = $(a).children().eq(row_sorter.idx).data('sortr-value')
+    j = $(b).children().eq(row_sorter.idx).data('sortr-value')
+    row_sorter.output(i > j, i < j, i == j)
+  numeric: (a, b) ->
+    i = parseFloat($(a).children().eq(row_sorter.idx).data('sortr-value'))
+    j = parseFloat($(b).children().eq(row_sorter.idx).data('sortr-value'))
+    row_sorter.output(i > j, i < j, i == j)
+
+$.fn.sortr = (opts) ->
+  $els = @
+  method = if $.isPlainObject(opts) or !opts then '' else opts
+  if method and sortr[method]
+    $els.each ->
+      $el = $(@)
+      sortr[method].apply($el, Array.prototype.slice.call(arguments, 1))
+  else if !method
+    $els.each ->
+      plugin_instance = $.extend(
+        true,
+        $el: $(@),
+        sortr,
+        opts
+      )
+      $(@).data("sortr", plugin_instance)
+      plugin_instance.init()
+  else
+    $.error('Method #{method} does not exist on jQuery.')
+  return $els
