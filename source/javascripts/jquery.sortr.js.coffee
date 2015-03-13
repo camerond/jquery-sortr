@@ -195,7 +195,9 @@
     $els = @
     method = if $.isPlainObject(opts) or !opts then '' else opts
     if method and sortr[method]
-      sortr[method].apply($els, Array.prototype.slice.call(arguments, 1))
+      $els.each ->
+        $el = $(@)
+        sortr[method].apply($el, Array.prototype.slice.call(arguments, 1))
     else if !method
       $els.each ->
         plugin_instance = $.extend(
