@@ -26,7 +26,7 @@
 (($) ->
 
   sortr =
-    name: 'sortr'
+    class_name: 'sortr'
     initial_dir:
       alpha: 'asc'
       bool: 'desc'
@@ -40,8 +40,8 @@
     bool_true: ["true", "yes"]
     bool_false: ["false", "no"]
     applyClass: ($th, dir) ->
-      $th.parent().children().removeClass("#{@name}-asc #{@name}-desc")
-      $th.addClass("#{@name}-#{dir}")
+      $th.parent().children().removeClass("#{@class_name}-asc #{@class_name}-desc")
+      $th.addClass("#{@class_name}-#{dir}")
     cacheClasses: ->
       s = @
       s.class_cache = []
@@ -56,8 +56,8 @@
           $(this).addClass(s.class_cache[idx])
     refresh: ->
       s = $(@).data('sortr')
-      $th = s.$el.find(".#{sortr.name}-asc, .#{sortr.name}-desc")
-      dir = if $th.hasClass("#{sortr.name}-asc") then 'asc' else 'desc'
+      $th = s.$el.find(".#{sortr.class_name}-asc, .#{sortr.class_name}-desc")
+      dir = if $th.hasClass("#{sortr.class_name}-asc") then 'asc' else 'desc'
       table_parser.parse(s)
       s.sortByColumn($th, dir)
     sortByColumn: ($th, dir) ->
@@ -67,9 +67,9 @@
       $table = $th.closest('table')
       method = $th.data('sortr-method')
       if !method then return
-      if !dir and $th.is(".#{@name}-asc, .#{@name}-desc")
+      if !dir and $th.is(".#{@class_name}-asc, .#{@class_name}-desc")
         sorted = $table.find('tbody tr').detach().toArray().reverse()
-        @applyClass($th, if $th.hasClass("#{@name}-asc") then 'desc' else 'asc')
+        @applyClass($th, if $th.hasClass("#{@class_name}-asc") then 'desc' else 'asc')
       else
         empty_rows = @stripEmptyRows($table, idx)
         sorted = row_sorter.process(method, $table.find('tbody tr').detach().toArray(), idx)
@@ -191,7 +191,7 @@
       j = parseFloat($(b).children().eq(row_sorter.idx).data('sortr-value'))
       row_sorter.output(i > j, i < j, i == j)
 
-  $.fn[sortr.name] = (opts) ->
+  $.fn.sortr = (opts) ->
     $els = @
     method = if $.isPlainObject(opts) or !opts then '' else opts
     if method and sortr[method]
@@ -204,10 +204,10 @@
           sortr,
           opts
         )
-        $(@).data(sortr.name, plugin_instance)
+        $(@).data("sortr", plugin_instance)
         plugin_instance.init()
     else
-      $.error('Method #{method} does not exist on jQuery. #{sortr.name}')
+      $.error('Method #{method} does not exist on jQuery.')
     return $els
 
 )(jQuery)
