@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.6
+
+- expose events for callbacks & refresh
+
 ## 0.5.5
 
 - re-parse sort properly for checkbox columns each time a checkbox state is changed

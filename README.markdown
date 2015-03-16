@@ -73,11 +73,11 @@ If you want the entire table to prepend empty cells on sort, either pass `prepen
 
 #### Refresh
 
-If you modify the table contents client-side, call `$your_table.sortr('refresh')` to re-parse.
+If you modify the table contents client-side, call `$your_table.sortr('refresh')` or `$your_table.trigger('refresh.sortr')` to re-parse.
 
 #### Callbacks
 
-There are `beforeSort()` and `afterSort()` callbacks - for example, perhaps you want to keep a row pinned to the top of a table, in which case you'd detach it beforeSort, and prepend it afterSort.
+There are `beforeSort()` and `afterSort()` callbacks - for example, perhaps you want to keep a row pinned to the top of a table, in which case you'd detach it beforeSort, and prepend it afterSort. Any sort event also fires `beforeSort.sortr` and `afterSort.sortr` events on the table in question.
 
 #### Custom Booleans
 

@@ -1,8 +1,8 @@
 # jQuery Sortr Plugin
 # http://github.com/camerond/jquery-sortr
-# version 0.5.5
+# version 0.5.6
 #
-# Copyright (c) 2012 Cameron Daigle, http://camerondaigle.com
+# Copyright (c) 2015 Cameron Daigle, http://camerondaigle.com
 #
 # Permission is hereby granted, free of charge, to any person obtaining
 # a copy of this software and associated documentation files (the
