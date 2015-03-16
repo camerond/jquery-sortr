@@ -315,8 +315,12 @@
       afterSort: ->
         $(this).find("tr:first").before($first_row)
     )
+    eventFired = false
+    $t.on "beforeSort.sortr", ->
+      eventFired = true
     dataset.$th.click()
     sorted = ['lorem', 'am I right?', 'dolor', 'IPSUM', 'sic amet']
+    ok eventFired, "Event triggers properly off of callback"
     deepEqual(table.getColumnContents('latin'), sorted, 'detaches before sort and re-attaches after sort')
 
 )(jQuery)

@@ -30,13 +30,26 @@ sortr =
     bool: 'desc'
     numeric: 'desc'
   move_classes: false
-  beforeSort: $.noop
-  afterSort: $.noop
   class_cache: []
   numeric_filter: /[$%º¤¥£¢\,]/
   prepend_empty: false
   bool_true: ["true", "yes"]
   bool_false: ["false", "no"]
+  beforeSort: $.noop
+  afterSort: $.noop
+
+  external:
+    refresh: ->
+      s = $(@).data('sortr')
+      $th = s.$el.find(".#{s.class_name}-asc, .#{s.class_name}-desc")
+      dir = if $th.hasClass("#{s.class_name}-asc") then 'asc' else 'desc'
+      table_parser.parse(s)
+      s.sortByColumn($th, dir)
+
+  fireCallback: (name) ->
+    if !@[name] then return
+    @[name].apply(@$el)
+    @$el.trigger("#{name}.sortr")
 
   applyClass: ($th, dir) ->
     $th.parent().children().removeClass("#{@class_name}-asc #{@class_name}-desc")
@@ -60,15 +73,15 @@ sortr =
       s.$el.find('tbody tr').each (idx) ->
         $(this).addClass(s.class_cache[idx])
 
-  refresh: ->
-    s = $(@).data('sortr')
-    $th = s.$el.find(".#{sortr.class_name}-asc, .#{sortr.class_name}-desc")
-    dir = if $th.hasClass("#{sortr.class_name}-asc") then 'asc' else 'desc'
-    table_parser.parse(s)
-    s.sortByColumn($th, dir)
+  refreshSingleColumn: (e) ->
+    $target = $(e.target)
+    idx = $target.closest('td').index()
+    $th = @$el.find('th').eq(idx)
+    $th.removeClass("#{@class_name}-asc #{@class_name}-desc")
+    table_parser.parseColumn($th)
 
   sortByColumn: ($th, dir) ->
-    @beforeSort.apply(@$el)
+    @fireCallback('beforeSort')
 
     method = $th.data('sortr-method')
     if !method then return
@@ -93,7 +106,7 @@ sortr =
     @$el.find('tbody').append($(sorted))
     @restoreClasses()
 
-    @afterSort.apply(@$el)
+    @fireCallback('afterSort')
     true
 
   sortInitialColumn: ->
@@ -108,14 +121,6 @@ sortr =
       $(@).children().eq(idx).data('sortr-value') == ''
     $rows.detach().toArray()
 
-  reparseSingleColumn: (e) ->
-    $checkbox = $(e.target)
-    idx = $checkbox.closest('td').index()
-    $th = $checkbox.closest('table').find('th').eq(idx)
-    $th.removeClass("sortr-asc sortr-desc")
-    instance = $checkbox.closest('table').data('sortr')
-    table_parser.parseColumn($th)
-
   init: ->
     s = @
     if @$el.attr('data-sortr-prepend-empty')
@@ -123,7 +128,8 @@ sortr =
     table_parser.parse(s)
     @sortInitialColumn()
     @$el.on("click.sortr", "th", (e) => @sortByColumn($(e.target)))
-    @$el.on("change.sortr", "tbody :checkbox", @reparseSingleColumn)
+    @$el.on("change.sortr", "tbody :checkbox", $.proxy(@refreshSingleColumn, @))
+    @$el.on("refresh.sortr", @external.refresh)
 
 table_parser =
   parse: (sortr_instance) ->
@@ -209,10 +215,10 @@ row_sorter =
 $.fn.sortr = (opts) ->
   $els = @
   method = if $.isPlainObject(opts) or !opts then '' else opts
-  if method and sortr[method]
+  if method and sortr.external[method]
     $els.each ->
       $el = $(@)
-      sortr[method].apply($el, Array.prototype.slice.call(arguments, 1))
+      sortr.external[method].apply($el, Array.prototype.slice.call(arguments, 1))
   else if !method
     $els.each ->
       plugin_instance = $.extend(
@@ -224,5 +230,5 @@ $.fn.sortr = (opts) ->
       $(@).data("sortr", plugin_instance)
       plugin_instance.init()
   else
-    $.error('Method #{method} does not exist on jQuery.')
+    $.error("Method #{method} does not exist in Sortr.")
   return $els
