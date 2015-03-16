@@ -37,40 +37,51 @@ sortr =
   prepend_empty: false
   bool_true: ["true", "yes"]
   bool_false: ["false", "no"]
+
   applyClass: ($th, dir) ->
     $th.parent().children().removeClass("#{@class_name}-asc #{@class_name}-desc")
     $th.addClass("#{@class_name}-#{dir}")
+
+  reverseClass: ($th) ->
+    @applyClass($th, if $th.hasClass("#{@class_name}-asc") then 'desc' else 'asc')
+
   cacheClasses: ->
+    return if @move_classes
     s = @
     s.class_cache = []
-    if !@move_classes
-      s.$el.find('tbody tr').each ->
-        s.class_cache.push($(this).attr('class'))
-        $(this).removeClass()
+    s.$el.find('tbody tr').each ->
+      s.class_cache.push($(this).attr('class'))
+      $(this).removeClass()
+
   restoreClasses: ->
+    return if @move_classes
     s = @
     if s.class_cache.length
       s.$el.find('tbody tr').each (idx) ->
         $(this).addClass(s.class_cache[idx])
+
   refresh: ->
     s = $(@).data('sortr')
     $th = s.$el.find(".#{sortr.class_name}-asc, .#{sortr.class_name}-desc")
     dir = if $th.hasClass("#{sortr.class_name}-asc") then 'asc' else 'desc'
     table_parser.parse(s)
     s.sortByColumn($th, dir)
+
   sortByColumn: ($th, dir) ->
     @beforeSort.apply(@$el)
-    @cacheClasses()
-    idx = $th.index()
-    $table = $th.closest('table')
+
     method = $th.data('sortr-method')
     if !method then return
+
+    @cacheClasses()
+    idx = $th.index()
+    empty_rows = @stripEmptyRows(@$el, idx)
+    rowArray = @$el.find('tbody tr').detach().toArray()
     if !dir and $th.is(".#{@class_name}-asc, .#{@class_name}-desc")
-      sorted = $table.find('tbody tr').detach().toArray().reverse()
-      @applyClass($th, if $th.hasClass("#{@class_name}-asc") then 'desc' else 'asc')
+      sorted = rowArray.reverse()
+      @reverseClass($th)
     else
-      empty_rows = @stripEmptyRows($table, idx)
-      sorted = row_sorter.process(method, $table.find('tbody tr').detach().toArray(), idx)
+      sorted = row_sorter.process(method, rowArray, idx)
       dir = dir or $th.data('sortr-initial-dir') or @initial_dir[method]
       if dir is 'desc' then sorted.reverse()
       @applyClass($th, dir)
@@ -79,26 +90,32 @@ sortr =
           sorted.unshift.apply(sorted, empty_rows)
         else
           sorted.push.apply(sorted, empty_rows)
-    $table.find('tbody').append($(sorted))
+    @$el.find('tbody').append($(sorted))
     @restoreClasses()
+
     @afterSort.apply(@$el)
-    $table
+    true
+
   sortInitialColumn: ->
     $initial = @$el.find('[data-sortr-default]')
-    if !$initial.data('sortr-method')
+    if !$initial.data('sortr-method') or !$initial.length
       $initial = @$el.find('[data-sortr-fallback]')
     return unless $initial.length
     @sortByColumn($initial.first())
+
   stripEmptyRows: ($table, idx) ->
     $rows = $table.find('tr').filter ->
       $(@).children().eq(idx).data('sortr-value') == ''
     $rows.detach().toArray()
-  reparseCheckboxColumn: (e) ->
-    idx = $(e.target).closest('td').index()
-    $th = $(e.target).closest('table').find('th').eq(idx)
+
+  reparseSingleColumn: (e) ->
+    $checkbox = $(e.target)
+    idx = $checkbox.closest('td').index()
+    $th = $checkbox.closest('table').find('th').eq(idx)
     $th.removeClass("sortr-asc sortr-desc")
-    instance = $(e.target).closest('table').data('sortr')
+    instance = $checkbox.closest('table').data('sortr')
     table_parser.parseColumn($th)
+
   init: ->
     s = @
     if @$el.attr('data-sortr-prepend-empty')
@@ -106,7 +123,7 @@ sortr =
     table_parser.parse(s)
     @sortInitialColumn()
     @$el.on("click.sortr", "th", (e) => @sortByColumn($(e.target)))
-    @$el.on("change.sortr", "td :checkbox", @reparseCheckboxColumn)
+    @$el.on("change.sortr", "tbody :checkbox", @reparseSingleColumn)
 
 table_parser =
   parse: (sortr_instance) ->
