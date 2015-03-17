@@ -30,7 +30,6 @@ sortr =
     bool: 'desc'
     numeric: 'desc'
   move_classes: false
-  class_cache: []
   numeric_filter: /[$%º¤¥£¢\,]/
   prepend_empty: false
   bool_true: ["true", "yes"]
@@ -172,7 +171,6 @@ table_parser =
         val == prev_val
       when 'bool'
         typeof val == "boolean" || $.inArray(val, @bools) != -1
-
   detectMethod: ->
     method = 'alpha'
     if @types.numeric != false then method = 'numeric'
