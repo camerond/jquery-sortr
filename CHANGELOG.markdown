@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.7
+
+- add 'ignore' option
+
 ## 0.5.6
 
 - expose events for callbacks & refresh

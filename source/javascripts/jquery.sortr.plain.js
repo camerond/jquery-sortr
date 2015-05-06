@@ -1,6 +1,6 @@
 // jQuery Sortr Plugin
 // http://github.com/camerond/jquery-sortr
-// version 0.5.6
+// version 0.5.7
 //
 // Copyright (c) 2015 Cameron Daigle, http://camerondaigle.com
 //
@@ -34,11 +34,11 @@
       numeric: 'desc'
     },
     move_classes: false,
-    class_cache: [],
-    numeric_filter: /[$%ÂºÂ¤Â¥Â£Â¢\,]/,
+    numeric_filter: /[$%º¤¥£¢\,]/,
     prepend_empty: false,
     bool_true: ["true", "yes"],
     bool_false: ["false", "no"],
+    ignore: "",
     beforeSort: $.noop,
     afterSort: $.noop,
     external: {
@@ -181,7 +181,7 @@
       tp = this;
       this.numeric_filter = sortr_instance.numeric_filter;
       this.bools = sortr_instance.bool_true.concat(sortr_instance.bool_false);
-      return sortr_instance.$el.find('thead th').each(function() {
+      return sortr_instance.$el.find('thead th').not(sortr_instance.ignore).not('[data-sortr-ignore]').each(function() {
         return tp.parseColumn($(this));
       });
     },
