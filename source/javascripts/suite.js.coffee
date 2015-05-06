@@ -287,6 +287,26 @@
     $th.click()
     deepEqual(table.getColumnContents('number'), sorted_numbers, 'sorts numbers ignoring `F`')
 
+  test "it ignores columns with a <th> matching the passed selector", ->
+    $t = table.init()
+    table.generateAlphaColumn()
+    dataset2 = table.generateAlphaColumn("ignore")
+    dataset2.$th.addClass("ignore_me")
+    $t.sortr(
+      ignore: '.ignore_me'
+    )
+    dataset2.$th.click()
+    deepEqual(table.getColumnContents('ignore'), dataset2.unsorted)
+
+  test "it ignores columns with a <th data-sortr-ignore>", ->
+    $t = table.init()
+    table.generateAlphaColumn()
+    dataset2 = table.generateAlphaColumn("ignore")
+    dataset2.$th.attr("data-sortr-ignore", true)
+    $t.sortr()
+    dataset2.$th.click()
+    deepEqual(table.getColumnContents('ignore'), dataset2.unsorted)
+
   module "Methods"
 
   test "refresh", ->

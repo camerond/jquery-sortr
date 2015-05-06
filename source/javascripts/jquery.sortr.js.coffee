@@ -34,6 +34,7 @@ sortr =
   prepend_empty: false
   bool_true: ["true", "yes"]
   bool_false: ["false", "no"]
+  ignore: ""
   beforeSort: $.noop
   afterSort: $.noop
 
@@ -135,8 +136,11 @@ table_parser =
     tp = @
     @numeric_filter = sortr_instance.numeric_filter
     @bools = sortr_instance.bool_true.concat sortr_instance.bool_false
-    sortr_instance.$el.find('thead th').each ->
-      tp.parseColumn($(@))
+    sortr_instance.$el.find('thead th')
+      .not(sortr_instance.ignore)
+      .not('[data-sortr-ignore]')
+      .each ->
+        tp.parseColumn($(@))
   parseColumn: ($th) ->
     tp = @
     prev_value = false
