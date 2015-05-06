@@ -50,12 +50,9 @@ If a table cell contains only an `<input>` element, Sortr will detect & sort by 
 
 #### Ignoring Columns
 
-You can ignore any columns:
+You can ignore any columns by giving the `<th>` an attribute of `data-sortr-ignore` or passing a selector that filters against your table's `<th>` elements:
 
-    ignore: {
-      '.some_selector'
-      // or any selector chain that matches the `<th>` element of the column(s) to ignore
-    }
+    ignore: '.some_selector'
 
 ## Styling
 
