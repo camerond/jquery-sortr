@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.8
+
+- add `data-sortr-secondary` secondary sorting support
+
 ## 0.5.7
 
 - add 'ignore' option

@@ -1,6 +1,6 @@
 // jQuery Sortr Plugin
 // http://github.com/camerond/jquery-sortr
-// version 0.5.7
+// version 0.5.8
 //
 // Copyright (c) 2015 Cameron Daigle, http://camerondaigle.com
 //
@@ -34,7 +34,7 @@
       numeric: 'desc'
     },
     move_classes: false,
-    numeric_filter: /[$%º¤¥£¢\,]/,
+    numeric_filter: /[$%ÂºÂ¤Â¥Â£Â¢\,]/,
     prepend_empty: false,
     bool_true: ["true", "yes"],
     bool_false: ["false", "no"],
@@ -102,12 +102,18 @@
       return table_parser.parseColumn($th);
     },
     sortByColumn: function($th, dir) {
-      var empty_rows, idx, method, rowArray, sorted;
+      var $secondary_sort, empty_rows, idx, method, rowArray, secondary_dir, secondary_idx, secondary_method, sorted;
 
       this.fireCallback('beforeSort');
       method = $th.data('sortr-method');
       if (!method) {
         return;
+      }
+      $secondary_sort = $th.siblings().filter('[data-sortr-secondary]');
+      if ($secondary_sort.length) {
+        secondary_method = $secondary_sort.data('sortr-method');
+        secondary_idx = $secondary_sort.index();
+        secondary_dir = this.initial_dir[$secondary_sort.data('sortr-method')];
       }
       this.cacheClasses();
       idx = $th.index();
@@ -117,7 +123,14 @@
         sorted = rowArray.reverse();
         this.reverseClass($th);
       } else {
-        sorted = row_sorter.process(method, rowArray, idx);
+        sorted = row_sorter.process({
+          rows: rowArray,
+          method: method,
+          idx: idx,
+          secondary_method: secondary_method,
+          secondary_idx: secondary_idx,
+          secondary_dir: secondary_dir
+        });
         dir = dir || $th.data('sortr-initial-dir') || this.initial_dir[method];
         if (dir === 'desc') {
           sorted.reverse();
@@ -277,41 +290,61 @@
   };
 
   row_sorter = {
-    process: function(method, rows, idx) {
-      this.idx = idx;
-      return rows.sort(this[method]);
+    process: function(opts) {
+      this.opts = opts;
+      return this.opts.rows.sort($.proxy(this.sort, this));
     },
-    output: function(positive, negative, neutral) {
-      if (neutral) {
-        return 0;
-      }
-      if (negative) {
-        return -1;
-      }
-      if (positive) {
-        return 1;
-      }
-    },
-    alpha: function(a, b) {
-      var i, j;
+    sort: function(a, b) {
+      var i, j, result;
 
-      i = $(a).children().eq(row_sorter.idx).data('sortr-value');
-      j = $(b).children().eq(row_sorter.idx).data('sortr-value');
-      return i.localeCompare(j);
+      i = this.getPrimaryValue(a);
+      j = this.getPrimaryValue(b);
+      result = this.compare(i, j);
+      if (this.opts.secondary_method && result === 0) {
+        i = this.getSecondaryValue(a);
+        j = this.getSecondaryValue(b);
+        result = this.compareSecondary(i, j);
+      }
+      return result;
     },
-    bool: function(a, b) {
-      var i, j;
+    compare: function(a, b, type, dir) {
+      var result;
 
-      i = $(a).children().eq(row_sorter.idx).data('sortr-value');
-      j = $(b).children().eq(row_sorter.idx).data('sortr-value');
-      return row_sorter.output(i > j, i < j, i === j);
+      if (type == null) {
+        type = this.opts.method;
+      }
+      if (type === 'alpha') {
+        result = a.localeCompare(b);
+      } else {
+        if (a === b) {
+          return 0;
+        }
+        result = a > b ? 1 : -1;
+      }
+      if (dir === 'asc') {
+        if (result === 1) {
+          result = -1;
+        } else if (result === -1) {
+          result = 1;
+        }
+      }
+      return result;
     },
-    numeric: function(a, b) {
-      var i, j;
-
-      i = parseFloat($(a).children().eq(row_sorter.idx).data('sortr-value'));
-      j = parseFloat($(b).children().eq(row_sorter.idx).data('sortr-value'));
-      return row_sorter.output(i > j, i < j, i === j);
+    compareSecondary: function(a, b) {
+      return this.compare(a, b, this.opts.secondary_method, this.opts.secondary_dir);
+    },
+    getPrimaryValue: function(row) {
+      return this.getValue(row, this.opts.idx, this.opts.method);
+    },
+    getSecondaryValue: function(row) {
+      return this.getValue(row, this.opts.secondary_idx, this.opts.secondary_method);
+    },
+    getValue: function(row, idx, type) {
+      if (type === 'numeric') {
+        return parseFloat($(row).children().eq(idx).data('sortr-value'));
+      } else {
+        return $(row).children().eq(idx).data('sortr-value');
+      }
     }
   };
 

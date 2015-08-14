@@ -1,6 +1,6 @@
 # jQuery Sortr Plugin
 # http://github.com/camerond/jquery-sortr
-# version 0.5.7
+# version 0.5.8
 #
 # Copyright (c) 2015 Cameron Daigle, http://camerondaigle.com
 #

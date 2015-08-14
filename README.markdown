@@ -38,6 +38,10 @@ Just give the appropriate `<th>` an attribute of `data-sortr-default` and Sortr 
 
 You can give second `<th>` an attribute of `data-sortr-fallback` and Sortr will attempt to sort by that column if the `data-sortr-default` column isn't sortable (for example, if it's all identical values).
 
+#### Specifying Secondary Sorting
+
+If you'd like a column to be the sort tiebreaker for matching values, just give that `th` an attribute of `data-sortr-secondary`. For all other columns, any matching values will then be sorted according to the values in the `data-sortr-secondary` column.
+
 #### Sorting by Custom Values
 
 If you'd like to sort by a custom value rather than the contents of a table cell (e.g. the column is a relative date but you'd like to sort by the UTC date), just add the value that you'd prefer to sort by as a `date-sortr-sortby` attribute on your `<td>`. For example:
