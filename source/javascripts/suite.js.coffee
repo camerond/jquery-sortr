@@ -201,6 +201,22 @@
     $t.sortr()
     deepEqual(table.getColumnContents('latin'), dataset.sorted, "sorts data-sortr-fallback column if data-sortr-default column isn't sortable")
 
+  test "it allows a secondary sorting method by the 'sortr-secondary' data attribute", ->
+    $t = table.init()
+
+    numbers = ['2', '3', '2', '1', '1', '2']
+    $th = table.addColumn('number', numbers)
+    $th.attr('data-sortr-default', true)
+
+    names = ['frank', 'joe', 'biff', 'chet', 'fenton', 'laurel']
+    sorted_names = ['joe', 'biff', 'frank', 'laurel', 'chet', 'fenton']
+    $th = table.addColumn('name', names)
+    $th.attr('data-sortr-secondary', true)
+
+    $t.sortr()
+    deepEqual(table.getColumnContents('number'), numbers.sort().reverse(), "sorts data-sortr-default column")
+    deepEqual(table.getColumnContents('latin'), sorted_names, "sorts matching data-sortr-default values by data-sortr-secondary fallback values")
+
   test "it allows overrides to default sorting direction through option", ->
     $t = table.init()
     dataset = table.generateAlphaColumn()

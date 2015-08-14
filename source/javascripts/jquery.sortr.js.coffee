@@ -86,6 +86,12 @@ sortr =
     method = $th.data('sortr-method')
     if !method then return
 
+    $secondary_sort = $th.siblings().filter('[data-sortr-secondary]')
+    if $secondary_sort.length
+      secondary_method = $secondary_sort.data('sortr-method')
+      secondary_idx = $secondary_sort.index()
+      secondary_dir = @initial_dir[$secondary_sort.data('sortr-method')]
+
     @cacheClasses()
     idx = $th.index()
     empty_rows = @stripEmptyRows(@$el, idx)
@@ -94,7 +100,15 @@ sortr =
       sorted = rowArray.reverse()
       @reverseClass($th)
     else
-      sorted = row_sorter.process(method, rowArray, idx)
+      sorted = row_sorter.process(
+        rows: rowArray
+        method: method
+        idx: idx
+        secondary_method: secondary_method
+        secondary_idx: secondary_idx
+        secondary_dir: secondary_dir
+      )
+
       dir = dir or $th.data('sortr-initial-dir') or @initial_dir[method]
       if dir is 'desc' then sorted.reverse()
       @applyClass($th, dir)
@@ -194,25 +208,40 @@ table_parser =
     !isNaN(parseFloat(v)) && isFinite(v)
 
 row_sorter =
-  process: (method, rows, idx) ->
-    @idx = idx
-    rows.sort(@[method])
-  output: (positive, negative, neutral) ->
-    return 0 if neutral
-    return -1 if negative
-    return 1 if positive
-  alpha: (a, b) ->
-    i = $(a).children().eq(row_sorter.idx).data('sortr-value')
-    j = $(b).children().eq(row_sorter.idx).data('sortr-value')
-    i.localeCompare(j)
-  bool: (a, b) ->
-    i = $(a).children().eq(row_sorter.idx).data('sortr-value')
-    j = $(b).children().eq(row_sorter.idx).data('sortr-value')
-    row_sorter.output(i > j, i < j, i == j)
-  numeric: (a, b) ->
-    i = parseFloat($(a).children().eq(row_sorter.idx).data('sortr-value'))
-    j = parseFloat($(b).children().eq(row_sorter.idx).data('sortr-value'))
-    row_sorter.output(i > j, i < j, i == j)
+  process: (opts) ->
+    @opts = opts
+    @opts.rows.sort($.proxy(@sort, @))
+  sort: (a, b) ->
+    i = @getPrimaryValue(a)
+    j = @getPrimaryValue(b)
+    result = @compare(i, j)
+    if @opts.secondary_method and result == 0
+      i = @getSecondaryValue(a)
+      j = @getSecondaryValue(b)
+      result = @compareSecondary(i, j)
+    result
+  compare: (a, b, type, dir) ->
+    type ?= @opts.method
+    if type == 'alpha'
+      result = a.localeCompare(b)
+    else
+      return 0 if a == b
+      result = if a > b then 1 else -1
+    if dir == 'asc'
+      if result == 1 then result = -1
+      else if result == -1 then result = 1
+    result
+  compareSecondary: (a, b) ->
+    @compare(a, b, @opts.secondary_method, @opts.secondary_dir)
+  getPrimaryValue: (row) ->
+    @getValue(row, @opts.idx, @opts.method)
+  getSecondaryValue: (row) ->
+    @getValue(row, @opts.secondary_idx, @opts.secondary_method)
+  getValue: (row, idx, type) ->
+    if type == 'numeric'
+      parseFloat($(row).children().eq(idx).data('sortr-value'))
+    else
+      $(row).children().eq(idx).data('sortr-value')
 
 $.fn.sortr = (opts) ->
   $els = @
